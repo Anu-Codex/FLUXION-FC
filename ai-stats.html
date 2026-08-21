@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI MONITOR | NEXUS COMMAND</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        :root { --bg: #020617; --card: #0f172a; --accent: #10b981; --error: #ef4444; --border: #1e293b; }
+        body { background: var(--bg); color: white; font-family: 'Inter', sans-serif; margin: 0; padding: 20px; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .tier-badge { background: #1e293b; padding: 4px 12px; border-radius: 20px; font-size: 0.6rem; color: var(--accent); border: 1px solid var(--accent); font-weight: 800; }
+
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .chart-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 20px; position: relative; }
+        .chart-card h4 { margin: 0 0 20px 0; font-size: 0.8rem; letter-spacing: 1px; color: #94a3b8; text-transform: uppercase; }
+        
+        .big-num { font-size: 2rem; font-weight: 900; color: white; margin-bottom: 5px; }
+        .sub-text { font-size: 0.7rem; color: #64748b; font-weight: bold; }
+
+        canvas { width: 100% !important; height: 180px !important; }
+        
+        @media (max-width: 768px) { .stats-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div>
+            <h2 style="margin:0; letter-spacing:3px; font-weight:900;">MISTRAL AI USAGE</h2>
+            <p style="font-size:0.7rem; color:#64748b; margin:5px 0 0;">REAL-TIME NEURAL TELEMETRY</p>
+        </div>
+        <div class="tier-badge">MISTRAL FREE TIER</div>
+    </div>
+
+    <div class="stats-grid">
+        <!-- Total Requests -->
+        <div class="chart-card">
+            <h4>Total API Requests</h4>
+            <div class="big-num" id="totalReq">0</div>
+            <canvas id="reqChart"></canvas>
+        </div>
+
+        <!-- Success Rate -->
+        <div class="chart-card">
+            <h4>Success Rate</h4>
+            <div class="big-num" id="successRate">0%</div>
+            <canvas id="successChart"></canvas>
+        </div>
+
+        <!-- Token Usage -->
+        <div class="chart-card">
+            <h4>Input Tokens (Prompt)</h4>
+            <div class="big-num" id="inputTokens">0</div>
+            <canvas id="tokenInChart"></canvas>
+        </div>
+
+        <!-- Output Tokens -->
+        <div class="chart-card">
+            <h4>Output Tokens (Completion)</h4>
+            <div class="big-num" id="outputTokens">0</div>
+            <canvas id="tokenOutChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        const API = "https://fluxion-fc-backend-5sq5.onrender.com";
+
+        async function loadCharts() {
+            const res = await fetch(`${API}/api/bot/usage-stats`);
+            const rawData = await res.json();
+
+            // Processing Data
+            const labels = rawData.map(d => new Date(d.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}));
+            const totalIn = rawData.reduce((sum, d) => sum + d.tokensInput, 0);
+            const totalOut = rawData.reduce((sum, d) => sum + d.tokensOutput, 0);
+            const successCount = rawData.filter(d => d.status === 'success').length;
+
+            document.getElementById('totalReq').innerText = rawData.length;
+            document.getElementById('inputTokens').innerText = totalIn.toLocaleString();
+            document.getElementById('outputTokens').innerText = totalOut.toLocaleString();
+            document.getElementById('successRate').innerText = Math.round((successCount / rawData.length) * 100) + "%";
+
+            // Chart Config Factory
+            const createChart = (id, data, color) => {
+                new Chart(document.getElementById(id), {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: data,
+                            borderColor: color,
+                            backgroundColor: color + '22',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 0
+                        }]
+                    },
+                    options: {
+                        plugins: { legend: { display: false } },
+                        scales: { 
+                            x: { display: false },
+                            y: { grid: { color: '#1e293b' }, ticks: { color: '#475569', size: 10 } }
+                        }
+                    }
+                });
+            };
+
+            createChart('reqChart', rawData.map((_, i) => i + 1), '#10b981');
+            createChart('tokenInChart', rawData.map(d => d.tokensInput), '#3b82f6');
+            createChart('tokenOutChart', rawData.map(d => d.tokensOutput), '#a855f7');
+            createChart('successChart', rawData.map(d => d.status === 'success' ? 100 : 0), '#facc15');
+        }
+
+        loadCharts();
+    </script>
+</body>
+</html>
