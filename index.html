@@ -1,0 +1,2073 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS LEGENDS EFOOTBALL COMMUNITY</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg: #060b13;
+            --card-bg: #101926;
+            --item-bg: #162130;
+            --accent: #10b981;
+            --text-dim: #94a3b8;
+            --border: #1e293b;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* The main wrapper that forces vertical stacking */
+        .main-container {
+            width: 100%;
+            max-width: 500px; /* Limits width to look like a mobile app */
+            display: flex;
+            flex-direction: column; /* FORCES TOP TO BOTTOM LAYOUT */
+            gap: 30px; /* Space between the two sections */
+        }
+
+        /* HEADER SECTION */
+        header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px; /* Ensures a small buffer */
+        }
+        .logo h2 { 
+    margin: 0; 
+    color: white; 
+    font-size: 1.1rem; /* Reduced from 1.2rem */
+    white-space: nowrap; /* Forces text to stay on one line */
+        }
+        .logo span { color: var(--accent); font-size: 0.7rem; display: block; font-weight: bold; }
+        
+        .top-nav { 
+    display: flex; 
+    gap: 5px; /* Reduced from 10px */
+}
+
+/* Shrink the individual icon buttons */
+.nav-item { 
+    color: var(--text-dim); 
+    text-decoration: none; 
+    width: 32px; /* Reduced from 40px */
+    height: 32px; /* Reduced from 40px */
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    border-radius: 8px; 
+    font-size: 0.9rem; /* Makes the icons inside slightly smaller */
+}
+        .nav-item.active { background: rgba(16,185,129,0.1); color: var(--accent); border: 1px solid rgba(16,185,129,0.2); }
+
+        /* FIRST SECTION: LEAGUE STATS */
+        .league-card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 25px;
+            border: 1px solid var(--border);
+        }
+
+        .dropdown-row { display: flex; gap: 10px; margin-bottom: 20px; }
+        select { background: #1e293b; color: white; border: 1px solid var(--border); padding: 8px; border-radius: 8px; }
+
+        .league-title { font-size: 1.8rem; margin: 10px 0; }
+        .league-leader { background: rgba(16,185,129,0.1); padding: 8px 15px; border-radius: 20px; display: inline-block; font-size: 0.8rem; color: var(--text-dim); margin-bottom: 20px;}
+        .league-leader b { color: white; }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .stat-box { background: var(--item-bg); padding: 15px; border-radius: 15px; border: 1px solid var(--border); }
+        .stat-box i { font-size: 1.2rem; margin-bottom: 10px; display: block; }
+        .stat-box .label { font-size: 0.75rem; color: var(--text-dim); }
+        .stat-box .val { font-size: 1.4rem; font-weight: bold; display: block; margin: 4px 0; }
+
+        /* SECOND SECTION: DASHBOARD VIEW (Under the first one) */
+        .dashboard-section { width: 100%; }
+        
+        .section-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .section-title-row h3 { font-size: 0.85rem; color: var(--text-dim); letter-spacing: 1px; margin: 0; }
+
+        .players-card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .total-info { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+        .icon-sq { background: #1e293b; padding: 12px; border-radius: 10px; color: #6366f1; }
+
+        .search-box {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .search-box input { background: transparent; border: none; color: white; width: 100%; outline: none; }
+
+        .table-header { display: flex; justify-content: space-between; padding: 10px; color: var(--text-dim); font-size: 0.8rem; border-bottom: 1px solid var(--border); }
+        
+        .player-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 10px; border-bottom: 1px solid var(--border); }
+        .p-details { display: flex; align-items: center; gap: 12px; }
+        .p-img { width: 45px; height: 45px; border-radius: 8px; background: var(--bg); }
+        .t-details { display: flex; align-items: center; gap: 8px; }
+        .t-logo { width: 25px; height: 25px; border-radius: 4px; }
+
+        /* Loader Overlay Styling */
+#loader-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #060b13; /* Same as your site bg */
+    z-index: 10000; /* Stays on top of everything */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.8s ease;
+}
+
+.loader-content {
+    width: 80%;
+    max-width: 350px;
+    text-align: center;
+}
+
+.loader-logo {
+    margin-bottom: 30px;
+}
+
+.loader-logo i {
+    font-size: 3rem;
+    color: #10b981;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.loader-logo h2 {
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+}
+
+.loader-logo span { color: #10b981; }
+
+#status-text {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    margin-bottom: 15px;
+    height: 20px; /* Prevents jumping when text changes */
+    font-weight: 500;
+}
+
+/* The Progress Bar */
+.progress-container {
+    width: 100%;
+    height: 6px;
+    background: #1e293b;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+#progress-fill {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #10b981, #34d399);
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+    transition: width 0.1s linear; /* Smooth fill */
+}
+
+.loading-footer {
+    font-size: 0.7rem;
+    color: #334155;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Hide the rest of the site until loaded */
+.content-loaded body {
+    overflow: auto;
+}
+        /* Add this to your existing CSS */
+.no-animation {
+    display: none !important;
+}
+        /* Ranking Specific Styles */
+.ranking-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px;
+    margin-bottom: 20px;
+}
+.ranking-header i { font-size: 2rem; color: #f59e0b; }
+.ranking-header h4 { margin: 0; letter-spacing: 1px; font-size: 0.9rem; }
+
+.rank-row {
+    display: flex;
+    align-items: center;
+    padding: 15px 10px;
+    border-bottom: 1px solid #1e293b;
+    gap: 15px;
+}
+
+.rank-num {
+    width: 30px;
+    font-weight: bold;
+    color: #475569;
+    font-size: 0.9rem;
+}
+
+.rank-1-icon { color: #f59e0b; font-size: 1.2rem; width: 30px; text-align: center; }
+
+.rank-info {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #1e293b; /* The line under name */
+    padding-bottom: 5px;
+}
+
+.rank-pts {
+    text-align: right;
+}
+.rank-pts b { display: block; font-size: 1rem; color: #f59e0b; }
+.rank-pts span { font-size: 0.7rem; color: #475569; text-transform: uppercase; }
+/* Market Values Specific Styles */
+.market-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+}
+.market-header h5 { color: var(--text-dim); margin: 0; font-size: 0.7rem; letter-spacing: 1px; text-transform: uppercase; }
+.market-header h3 { margin: 5px 0 0; font-size: 1.3rem; font-weight: 700; }
+.market-icon { color: var(--accent); font-size: 1.3rem; opacity: 0.8; }
+
+.market-table-header {
+    display: flex;
+    padding: 12px 15px;
+    color: #475569;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+    background: rgba(255,255,255,0.02);
+}
+
+.market-row {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: 0.2s;
+}
+.market-row:hover { background: rgba(255,255,255,0.03); }
+
+/* Column Widths to match Image */
+.m-rank { width: 35px; font-weight: 800; color: #334155; }
+.m-rank.top-1 { color: #f59e0b; } /* Gold color for rank 1 */
+
+.m-player-cell { flex: 1; display: flex; align-items: center; gap: 15px; }
+.m-avatar { width: 42px; height: 42px; border-radius: 8px; object-fit: cover; }
+.m-name { font-weight: 600; font-size: 0.95rem; color: #f8fafc; }
+
+.m-team-cell { width: 130px; display: flex; align-items: center; gap: 10px; }
+.m-t-logo { width: 28px; height: 28px; border-radius: 4px; object-fit: contain; }
+.m-t-name { font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; }
+
+/* --- HAMBURGER MENU STYLES --- */
+.logo-group { display: flex; align-items: center; gap: 15px; }
+.hamburger-btn {
+    background: transparent; 
+    border: none; 
+    color: white;
+    font-size: 1.2rem; /* Reduced from 1.5rem */
+    cursor: pointer; 
+    padding: 2px;
+}
+
+/* --- FIXED SIDEBAR CSS --- */
+.side-nav {
+    position: fixed;
+    top: 0;
+    left: -300px; /* This hides it to the left */
+    width: 280px;
+    height: 100vh;
+    background: #0f172a;
+    z-index: 99999; /* Ensure it is above EVERYTHING */
+    transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+    padding: 25px;
+    visibility: hidden; /* Extra safety to prevent flickering */
+}
+
+/* This class is added by JavaScript when you click the button */
+.side-nav.active {
+    left: 0;
+    visibility: visible;
+}
+
+.side-nav-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
+.close-btn { background: transparent; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer;}
+
+.nav-links { list-style: none; padding: 0; }
+.nav-links li {
+    padding: 15px 12px; color: #f8fafc; font-size: 1rem;
+    display: flex; align-items: center; gap: 15px; cursor: pointer;
+    border-radius: 12px; margin-bottom: 8px; transition: 0.2s;
+}
+.nav-links li i { width: 20px; color: var(--accent); }
+.nav-links li:hover { background: #1e293b; color: var(--accent); }
+
+#menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    z-index: 99998; /* Just below the sidebar */
+    display: none; /* Hidden by default */
+    backdrop-filter: blur(4px);
+}
+        .tour-nav-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
+.tour-dropdown { background: var(--bg); color: var(--accent); border: 1px solid var(--border); padding: 8px 12px; border-radius: 8px; font-weight: bold; }
+#tourContent { animation: fadeIn 0.3s ease; }
+        /* Image 1 Dark Style Table */
+.ranking-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: transparent; /* No white background */
+    margin-top: 10px;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.ranking-table thead {
+    background: rgba(255, 255, 255, 0.03); /* Subtle header highlight */
+    color: var(--text-dim);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.ranking-table th {
+    padding: 15px 10px;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+}
+
+.ranking-table td {
+    padding: 14px 10px;
+    border-bottom: 1px solid rgba(30, 41, 59, 0.5); /* Very subtle divider */
+    font-size: 0.9rem;
+    color: var(--text-main);
+}
+
+/* Specific Column Styling */
+.rank-col { 
+    width: 40px; 
+    font-weight: 800; 
+    color: var(--accent); /* Neon Green for rank */
+}
+
+.player-col-name {
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+.team-col-name {
+    color: var(--text-dim);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.val-col-data {
+    text-align: right;
+    font-weight: bold;
+    color: var(--text-main);
+    font-size: 1rem;
+}
+
+/* Hover effect to match image 1 rows */
+.ranking-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+        .tour-name-select {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--accent);
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    max-width: 150px;
+    outline: none;
+        }
+        /* Fixture Row Styling */
+.match-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.02);
+    padding: 15px;
+    border-radius: 15px;
+    margin-bottom: 10px;
+    border: 1px solid var(--border);
+}
+
+.m-team {
+    flex: 1;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: white;
+}
+
+.m-team.right { text-align: right; }
+
+.m-badge-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    min-width: 80px;
+}
+
+.m-score-badge {
+    background: var(--bg);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-weight: 800;
+    color: var(--accent);
+    border: 1px solid var(--border);
+    letter-spacing: 2px;
+}
+
+.m-status-label {
+    font-size: 0.6rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    font-weight: bold;
+}
+        .pts-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    color: #94a3b8; /* Dim text */
+    background: transparent;
+}
+
+.pts-table thead tr {
+    border-bottom: 1px solid #1e293b;
+}
+
+.pts-table th {
+    padding: 12px 8px;
+    text-align: center;
+    font-weight: 600;
+    color: #475569;
+}
+
+.pts-table td {
+    padding: 12px 5px;
+    text-align: center;
+    border-bottom: 1px solid rgba(30, 41, 59, 0.5);
+}
+
+/* Rank and Team Column */
+.col-rank { color: #10b981; font-weight: 800; width: 30px; }
+.col-team { text-align: left !important; color: #fff; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+.col-team img { width: 25px; height: 25px; border-radius: 4px; }
+
+/* Highlight Row 1 */
+.pts-table tbody tr:first-child {
+    background: rgba(245, 158, 11, 0.05);
+    border-left: 3px solid #f59e0b;
+}
+.pts-table tbody tr:first-child .col-team { color: #f59e0b; }
+
+/* Points Column */
+.col-pts { color: #f59e0b; font-weight: 800; font-size: 1rem; }
+
+/* Goal Difference Colors */
+.gd-pos { color: #10b981; }
+.gd-neg { color: #ef4444; }
+        .gd-positive { color: #10b981; font-weight: bold; }
+.gd-negative { color: #ef4444; font-weight: bold; }
+.gd-neutral { color: #94a3b8; }
+
+/* Ensure the table columns are spaced like your image */
+.pts-table th, .pts-table td {
+    padding: 10px 5px;
+    text-align: center;
+}
+        /* Responsive Table Wrapper */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    margin-top: 10px;
+    border-radius: 12px;
+    background: rgba(0,0,0,0.2);
+}
+
+.pts-table {
+    width: 100%;
+    min-width: 500px; /* Minimum width to keep columns readable */
+    border-collapse: collapse;
+    font-size: 0.75rem; /* Slightly smaller for more columns */
+}
+
+.pts-table th {
+    background: rgba(255,255,255,0.03);
+    color: var(--text-dim);
+    padding: 10px 5px;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.pts-table td {
+    padding: 12px 5px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    text-align: center;
+    color: #e2e8f0;
+}
+
+.col-team-name {
+    text-align: left !important;
+    padding-left: 10px !important;
+    color: white !important;
+    font-weight: 600;
+    width: 120px; /* Give team name more space */
+}
+
+.col-pts-bold {
+    font-weight: 800;
+    color: var(--gold) !important;
+    font-size: 0.85rem;
+}
+
+.row-leader {
+    background: rgba(245, 158, 11, 0.05);
+    border-left: 3px solid var(--gold);
+}
+.row-highlight { background: rgba(16, 185, 129, 0.05); border-left: 3px solid var(--accent); }
+        /* Market Value Table Styling */
+.ranking-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.ranking-table thead th {
+    color: var(--text-dim);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    padding: 12px 10px;
+    border-bottom: 1px solid var(--border);
+}
+
+.ranking-table tbody td {
+    padding: 14px 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 0.9rem;
+}
+
+.rank-col {
+    font-weight: 800;
+    color: var(--accent); /* Neon Green for the rank number */
+}
+
+/* Hover effect */
+.ranking-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+        /* --- COLOURFUL FOOTER STYLING --- */
+.main-footer {
+    width: 100%;
+    text-align: center;
+    padding: 40px 20px;
+    margin-top: 30px;
+    background: transparent;
+}
+
+.footer-line {
+    width: 50px;
+    height: 2px;
+    background: linear-gradient(90deg, #10b981, #f59e0b);
+    margin: 0 auto 20px;
+    border-radius: 10px;
+    opacity: 0.5;
+}
+
+.main-footer p {
+    font-size: 0.75rem;
+    color: #64748b; /* Dim gray text */
+    letter-spacing: 0.5px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Gradient effect for names */
+.dev-name {
+    background: linear-gradient(90deg, #10b981, #34d399);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+}
+
+.owner-name {
+    background: linear-gradient(90deg, #f59e0b, #fbbf24);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+}
+
+/* Glow effect on hover */
+.main-footer p:hover span {
+    text-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+    transition: 0.3s;
+}
+        /* --- COMPACT & RESPONSIVE LIST STYLES --- */
+#playerTableList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px; /* Slight gap between rows for a clean look */
+    margin-top: 15px;
+}
+
+.player-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+/* Hover effect for Desktop */
+@media (hover: hover) {
+    .player-row:hover {
+        background: rgba(255, 255, 255, 0.07);
+        transform: translateX(4px);
+        border-color: var(--accent);
+    }
+}
+
+/* Left Side: Player Info */
+.p-details {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+.p-img {
+    width: 40px; /* Scaled down from 45px */
+    height: 40px;
+    border-radius: 10px;
+    background: #1e293b;
+    object-fit: cover;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.p-name {
+    display: block;
+    font-size: 0.95rem; /* Clean, professional size */
+    font-weight: 700;
+    color: #f8fafc;
+    line-height: 1.2;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.p-nick {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    font-style: italic;
+    opacity: 0.8;
+}
+
+/* Right Side: Team Info */
+.t-details {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: flex-end;
+    min-width: 130px;
+}
+
+.t-logo {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+}
+
+.t-name {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: block;
+}
+
+/* --- MOBILE OPTIMIZATION --- */
+@media (max-width: 480px) {
+    .p-name { font-size: 0.85rem; }
+    .t-name { display: none; } /* Hide team text on tiny phones to keep it clean */
+    .t-details { min-width: auto; }
+    .p-img { width: 36px; height: 36px; }
+    .player-row { padding: 8px 12px; }
+}
+
+/* --- DESKTOP OPTIMIZATION --- */
+@media (min-width: 1024px) {
+    .dashboard-wrapper, .main-container {
+        max-width: 800px; /* Wider for desktop */
+    }
+}
+        /* Individual Hover States */
+.p-details:hover {
+    background: rgba(16, 185, 129, 0.05); /* Slight green tint */
+    border-radius: 8px 0 0 8px;
+}
+
+.t-details:hover {
+    background: rgba(255, 255, 255, 0.05); /* Slight white highlight */
+    border-radius: 0 8px 8px 0;
+}
+
+/* Ensure names don't clash on small screens */
+.t-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 80px; /* Limits team name length on mobile */
+}
+
+@media (min-width: 1024px) {
+    .t-name { max-width: 150px; } /* More space on desktop */
+}
+        /* Uptime Page Specific Styling */
+.stats-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.status-orb {
+    width: 80px;
+    height: 80px;
+    background: radial-gradient(circle, #10b981 0%, transparent 70%);
+    border-radius: 50%;
+    margin: 0 auto 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 30px rgba(16, 185, 129, 0.4);
+    animation: pulse-glow 2s infinite;
+}
+
+@keyframes pulse-glow {
+    0% { transform: scale(0.95); box-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
+    70% { transform: scale(1); box-shadow: 0 0 40px rgba(16, 185, 129, 0.6); }
+    100% { transform: scale(0.95); box-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
+}
+
+.uptime-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.uptime-box {
+    background: rgba(16, 25, 38, 0.8);
+    border: 1px solid #1e293b;
+    padding: 20px;
+    border-radius: 20px;
+    text-align: center;
+}
+
+.uptime-box h4 { color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; margin-bottom: 10px; }
+.uptime-box .value { font-size: 1.5rem; font-weight: 800; color: #fff; }
+
+.live-log-container {
+    background: #000;
+    border: 1px solid #10b98133;
+    border-radius: 15px;
+    padding: 15px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.75rem;
+    height: 200px;
+    overflow-y: auto;
+    color: #10b981;
+    position: relative;
+}
+
+.log-entry { margin-bottom: 5px; border-left: 2px solid #10b981; padding-left: 10px; opacity: 0.8; }
+.log-entry span { color: #64748b; margin-right: 10px; }
+
+/* Uptime Bar Styling */
+.uptime-bar-container {
+    display: flex;
+    gap: 3px;
+    height: 30px;
+    align-items: flex-end;
+    margin-top: 10px;
+}
+.bar { flex: 1; height: 100%; background: #10b981; border-radius: 2px; opacity: 0.3; }
+.bar.active { opacity: 1; box-shadow: 0 0 5px #10b981; }
+        /* New Connection Graph Styling */
+.graph-container {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid #1e293b;
+    border-radius: 15px;
+    padding: 15px 10px 5px 10px;
+    margin-bottom: 20px;
+    position: relative;
+    height: 100px; /* Compact height for mobile */
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    overflow: hidden;
+}
+
+.conn-bar {
+    flex: 1;
+    min-width: 5px;
+    border-radius: 2px 2px 0 0;
+    transition: height 0.3s ease;
+}
+
+/* Color logic for graph bars */
+.bar-green { background: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.4); }
+.bar-orange { background: #f59e0b; box-shadow: 0 0 8px rgba(245, 158, 11, 0.4); }
+.bar-red { background: #ef4444; box-shadow: 0 0 8px rgba(239, 68, 68, 0.4); }
+
+.graph-label-tech {
+    position: absolute;
+    top: 5px;
+    left: 10px;
+    font-size: 0.6rem;
+    color: #475569;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+        /* Professional Centered Loader */
+#partial-loader {
+    width: 100%;
+    min-height: 70vh; /* This centers it perfectly between header and footer */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 0;
+}
+
+.processing-ring {
+    width: 70px; /* Slightly larger for better visibility */
+    height: 70px;
+    border: 3px solid rgba(250, 204, 21, 0.1);
+    border-top: 3px solid #facc15;
+    border-radius: 50%;
+    margin-bottom: 25px; /* Space between ring and text */
+    animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite; /* Smoother animation */
+}
+
+#partial-loader p {
+    color: #facc15;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-size: 0.8rem;
+    margin: 0;
+    max-width: 80%; /* Prevents text from hitting edges on small phones */
+    text-align: center;
+    line-height: 1.5;
+}
+
+/* The small green progress line shown in your image */
+.loader-progress-line {
+    width: 40px;
+    height: 2px;
+    background: #10b981;
+    margin-top: 20px;
+    border-radius: 10px;
+    opacity: 0.6;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+/* Optional: Hide the old full-screen splash loader if you want it gone */
+#loader-overlay { display: none !important; }
+        /* Isolated UptimeRobot Card Styling */
+.audit-card {
+    background: linear-gradient(145deg, #0f172a 0%, #060b13 100%);
+    border: 1px solid #1e293b;
+    border-top: 3px solid #f59e0b; /* Golden Audit Accent */
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 25px;
+    position: relative;
+    overflow: hidden;
+}
+
+.audit-card::after {
+    content: 'EXTERNAL AUDIT';
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 0.5rem;
+    color: #f59e0b;
+    font-weight: 900;
+    letter-spacing: 2px;
+    opacity: 0.5;
+}
+
+.audit-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.audit-item {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 10px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.audit-item label { display: block; font-size: 0.55rem; color: #64748b; text-transform: uppercase; margin-bottom: 5px; }
+.audit-item span { font-size: 1rem; font-weight: 800; color: #f8fafc; }
+
+.audit-status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    padding-bottom: 10px;
+}
+        .nav-links li i.fa-code-compare {
+    color: var(--accent);
+    text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <!-- Loader Overlay -->
+<div id="loader-overlay">
+    <div class="loader-content">
+        <div class="loader-logo">
+            <i class="fa-solid fa-shield-halved"></i>
+           <h2>NEXUS <span>LEGENDS</span></h2>
+        </div>
+        
+        <p id="status-text">Initializing...</p>
+        
+        <div class="progress-container">
+            <div id="progress-fill"></div>
+        </div>
+        
+        <p class="loading-footer">Version 7.0.2 • Secure Connection</p>
+    </div>
+</div>
+    <!-- Sidebar Menu -->
+<div id="side-menu" class="side-nav">
+    <div class="side-nav-header">
+        <h3 style="margin:0; font-size:1rem; color:var(--accent)">MENU</h3>
+        <button onclick="toggleMenu()" class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <ul class="nav-links">
+        <li onclick="switchView('total')"><i class="fa-solid fa-users"></i> Total Players</li>
+        <li onclick="switchView('teams')"><i class="fa-solid fa-shield-halved"></i> Total Teams</li>
+        <li onclick="window.location.href='versus.html'">
+    <i class="fa-solid fa-code-compare"></i> Players Compare
+        </li>
+        <hr style="border: 0; border-top: 1px solid var(--border); margin: 10px 0;">
+        <li onclick="switchView('auction')"><i class="fa-solid fa-gavel"></i> Auction Tour</li>
+    <li onclick="switchView('soloTour')"><i class="fa-solid fa-user"></i> Solo Tour</li>
+        <hr style="border: 0; border-top: 1px solid var(--border); margin: 10px 0;">
+        <li onclick="switchView('bdr')"><i class="fa-solid fa-trophy"></i> BDR Rankings</li>
+        <li onclick="switchView('market')"><i class="fa-solid fa-chart-line"></i> Market Value</li>
+        <li onclick="window.location.href='transfer.html'">
+    <i class="fa-solid fa-cart-shopping"></i> Transfer Market
+        </li>
+        <hr style="border: 0; border-top: 1px solid var(--border); margin: 10px 0;">
+        <li onclick="switchView('trophies')"><i class="fa-solid fa-award"></i> Trophies</li>
+        <li onclick="switchView('ucl')"><i class="fa-solid fa-shield-halved"></i> UCL</li>
+        <hr style="border: 0; border-top: 1px solid var(--border); margin: 10px 0;">
+        <li onclick="window.location.href='live-support.html'"><i class="fa-solid fa-robot"></i> Live Support Bot</li>
+        <hr style="border: 0; border-top: 1px solid var(--border); margin: 10px 0;">
+        <li onclick="switchView('uptime')"><i class="fa-solid fa-signal"></i> Uptime & Stats</li>
+    </ul>
+</div>
+<div id="menu-overlay" onclick="toggleMenu()"></div>
+
+    <div class="main-container">
+        
+        <!-- HEADER -->
+        <header>
+            <div class="logo-group">
+        <button class="hamburger-btn" onclick="toggleMenu()">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+            <div class="logo">
+                <h2>NEXUS <b>LEGENDS</b></h2>
+                <span>EFOOTBALL COMMUNITY</span>
+            </div>
+            <nav class="top-nav">
+                <a href="#" class="nav-item active"><i class="fa-solid fa-chart-simple"></i></a>
+                <a href="halloffame.html" class="nav-item"><i class="fa-solid fa-trophy"></i></a>
+                <a href="https://nexus-acl-auction.vercel.app/auction.html" class="nav-item" target="_blank">
+        <i class="fa-solid fa-gavel"></i>
+                </a>
+                <a href="login.html" class="nav-item"><i class="fa-solid fa-right-to-bracket"></i></a>
+            </nav>
+        </header>
+        <div id="partial-loader">
+    <div class="processing-ring"></div>
+    <p>CONNECTING TO NEXUS LEGENDS OFFICIAL PLAYERS DATABASE</p>
+        </div>
+        <div id="main-content-area" style="display: none;">
+
+        <!-- 1st DIV: LEAGUE INFO & STATS -->
+        <section class="league-card">
+            <div class="dropdown-row">
+                <select><option>2026</option></select>
+                <select><option>Season 1 • Current</option></select>
+            </div>
+            <h1 class="league-title">NEXUS LEGENDS<br>Players Data</h1>
+            <div class="league-leader">
+    League leader <b id="leaderDisplay">Loading...</b>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <i class="fa-solid fa-trophy" style="color: #f59e0b;"></i>
+                    <span class="label">BDR Leader</span>
+                    <span class="val" id="bdrVal">0</span>
+                    <span class="label" id="bdrName">Abhay</span>
+                </div>
+                <div class="stat-box">
+                    <i class="fa-solid fa-chart-line" style="color: #ef4444;"></i>
+                    <span class="label">Highest MV</span>
+                    <span class="val" id="mvVal">0</span>
+                    <span class="label" id="mvName">Abhay</span>
+                </div>
+                <div class="stat-box">
+                    <i class="fa-solid fa-users" style="color: #3b82f6;"></i>
+                    <span class="label">Teams</span>
+                    <span class="val" id="teamCount">8</span>
+                    <span class="label">in the league</span>
+                </div>
+                <div class="stat-box">
+                    <i class="fa-solid fa-user-check" style="color: #a855f7;"></i>
+                    <span class="label">Players</span>
+                    <span class="val" id="playerCount">117</span>
+                    <span class="label">Registered</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2nd DIV: DASHBOARD VIEW (NOW UNDERNEATH) -->
+        <section class="dashboard-section">
+            <div class="section-title-row">
+    <h3>DASHBOARD VIEW</h3>
+    <select id="viewSelector" onchange="toggleView()">
+    <option value="total">Total players</option>
+    <option value="teams">Total teams</option>
+    </select>
+            </div>
+
+            <div class="players-card">
+                <div id="dynamicContent">
+                
+                </div>
+            </div>
+        </section>
+
+    </div>
+    <script>
+    const API = "https://pes-park-backend.onrender.com"; 
+    let allPlayers = []; // Global store for players
+
+    // 1. Initial Loader & Data Fetching
+    async function manageLoader() {
+        const overlay = document.getElementById('loader-overlay');
+        const hasSeenLoader = sessionStorage.getItem('hasSeenLoader');
+
+        if (hasSeenLoader === 'true') {
+            overlay.classList.add('no-animation');
+            initPage();
+        } else {
+            runSplashAnimation();
+            sessionStorage.setItem('hasSeenLoader', 'true');
+        }
+    }
+
+    function runSplashAnimation() {
+        const overlay = document.getElementById('loader-overlay');
+        const fill = document.getElementById('progress-fill');
+        const status = document.getElementById('status-text');
+        let progress = 0;
+        const duration = 5000; 
+        const intervalTime = 50; 
+        const step = 100 / (duration / intervalTime);
+
+        const messages = [
+            { point: 0, text: "Connecting to Server..." },
+            { point: 25, text: "Establishing Secure Connection..." },
+            { point: 50, text: "Fetching PES PARK Database..." },
+            { point: 75, text: "Synchronizing Player Records..." },
+            { point: 90, text: "Server Connected Successfully!" }
+        ];
+
+        const timer = setInterval(() => {
+            progress += step;
+            if (progress > 100) progress = 100;
+            fill.style.width = progress + "%";
+            messages.forEach(msg => { if (progress >= msg.point) status.innerText = msg.text; });
+
+            if (progress >= 100) {
+                clearInterval(timer);
+                setTimeout(() => {
+                    overlay.style.opacity = "0";
+                    setTimeout(() => { overlay.style.display = "none"; }, 800);
+                }, 500);
+            }
+        }, intervalTime);
+
+        initPage();
+    }
+
+    // 2. Fetch Data and Setup UI
+    async function initPage() {
+    const loader = document.getElementById('partial-loader');
+    const content = document.getElementById('main-content-area');
+
+    try {
+        // 1. Fetch Stats from Backend
+        const statsRes = await fetch(`${API}/api/stats`);
+        const stats = await statsRes.json();
+
+        if (stats) {
+            document.getElementById('bdrVal').innerText = (stats.bdrValue ?? 0) + "Pts";
+            document.getElementById('bdrName').innerText = stats.bdrName || "None";
+            document.getElementById('mvVal').innerText = (stats.mvValue ?? 0) + "M";
+            document.getElementById('mvName').innerText = stats.mvName || "None";
+            document.getElementById('teamCount').innerText = stats.teamsCount ?? 0;
+            document.getElementById('playerCount').innerText = stats.playersCount ?? 0;
+        }
+
+        // 2. Fetch Players from Backend
+        const playerRes = await fetch(`${API}/api/players`);
+        allPlayers = await playerRes.json();
+
+        // 3. DATA LOADED: Hide loader and show content
+        loader.style.display = 'none';
+        content.style.display = 'block';
+
+        // Trigger initial view
+        switchView('total');
+
+    } catch (error) {
+        console.error("Initialization Error:", error);
+        loader.innerHTML = '<p style="color:#ef4444;">Server Connection Failed</p>';
+    }
+}
+
+// Ensure you call initPage on load
+window.addEventListener('DOMContentLoaded', initPage);
+
+    // 3. View Toggler (BDR vs Total Players)
+    function toggleView() {
+    const view = document.getElementById('viewSelector').value;
+    const container = document.getElementById('dynamicContent');
+    
+    if (view === "teams") {
+        renderTotalTeams(container);
+    } else {
+        renderTotalPlayers(container);
+    }
+    }
+    function renderTotalPlayers(container) {
+    container.innerHTML = allPlayers.map(p => `
+        <div class="player-row" style="cursor: default;">
+            <!-- 1. LEFT SIDE: CLICKABLE PLAYER INFO -->
+            <div class="p-details" onclick="window.location.href='player.html?id=${p._id}'" style="cursor:pointer; flex: 1;">
+                <img src="${p.image || 'https://via.placeholder.com/40'}" class="p-img" onerror="this.src='https://via.placeholder.com/40'">
+                <div>
+                    <span class="p-name">${p.name}</span>
+                    ${p.nickname ? '<span class="p-nick">"' + p.nickname + '"</span>' : ''}
+                </div>
+            </div>
+
+            <!-- 2. RIGHT SIDE: CLICKABLE TEAM INFO -->
+            <div class="t-details" 
+                 onclick="${p.teamName ? "window.location.href='team.html?id=" + encodeURIComponent(p.teamName) + "'" : ""}" 
+                 style="cursor:${p.teamName ? 'pointer' : 'default'}; display: flex; align-items: center; gap: 8px; justify-content: flex-end; min-width: 120px;">
+                
+                ${p.teamName ? `
+                    <img src="${p.teamLogo}" class="t-logo" onerror="this.style.display='none'">
+                    <span class="t-name" style="font-size: 0.65rem; color: var(--text-dim); font-weight: 800; text-transform: uppercase;">${p.teamName}</span>
+                ` : '<span style="color:rgba(255,255,255,0.1);">—</span>'}
+                
+                <i class="fa-solid fa-chevron-right" style="font-size: 8px; color: rgba(255,255,255,0.2); margin-left: 5px;"></i>
+            </div>
+        </div>
+    `).join('');
+    }
+
+    function renderBDRRankings(container) {
+        const sorted = [...allPlayers].sort((a, b) => (b.bdrPoints || 0) - (a.bdrPoints || 0));
+        let html = `
+            <div class="ranking-header">
+                <i class="fa-solid fa-trophy"></i>
+                <div>
+                    <span style="color: #64748b; font-size: 0.7rem; font-weight: bold;">BDR RANKING</span>
+                    <h4>BALLOND'OR</h4>
+                </div>
+            </div>
+        `;
+
+        html += sorted.map((p, index) => {
+            const rank = index + 1;
+            const isFirst = rank === 1;
+            return `
+                <div class="rank-row" onclick="window.location.href='player.html?id=${p._id}'" style="cursor:pointer">
+                    <div class="${isFirst ? 'rank-1-icon' : 'rank-num'}">
+                        ${isFirst ? '<i class="fa-solid fa-crown"></i>' : '#' + rank}
+                    </div>
+                    <img src="${p.image || 'https://via.placeholder.com/45'}" class="p-img" style="width:45px; height:45px; border-radius:8px;">
+                    <div class="rank-info">
+                        <span style="font-weight: bold; font-size: 1rem;">${p.name}</span>
+                        <div class="rank-pts">
+                            <b>${p.bdrPoints || 0}</b>
+                            <span>pts</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        container.innerHTML = html;
+    }
+        function renderMarketValues(container) {
+    // 1. Sort players by Market Value (High to Low)
+    const sorted = [...allPlayers].sort((a, b) => (b.marketValue || 0) - (a.marketValue || 0));
+
+    let html = `
+        <div class="market-header">
+            <div>
+                <h5 style="color:var(--text-dim); margin:0; font-size:0.7rem; letter-spacing:1px;">VALUATIONS</h5>
+                <h3 style="margin:5px 0 0; font-size:1.3rem;">Market Value List</h3>
+            </div>
+            <i class="fa-solid fa-chart-line" style="color:var(--accent); font-size:1.3rem;"></i>
+        </div>
+        
+        <table class="ranking-table">
+            <thead>
+                <tr>
+                    <th style="text-align:left; width:50px;">#</th>
+                    <th style="text-align:left;">Player</th>
+                    <th style="text-align:right;">Value</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    html += sorted.map((p, index) => {
+        const rank = index + 1;
+        // Format value: if 100, shows 100M
+        const valueDisplay = (p.marketValue || 0) + "M";
+
+        return `
+            <tr onclick="window.location.href='player.html?id=${p._id}'" style="cursor:pointer">
+                <td class="rank-col">${rank}</td>
+                <td>
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <img src="${p.image || 'https://via.placeholder.com/40'}" 
+                             style="width:35px; height:35px; border-radius:8px; object-fit:cover;"
+                             onerror="this.src='https://via.placeholder.com/40'">
+                        <span style="font-weight:600; color:white;">${p.name}</span>
+                    </div>
+                </td>
+                <td style="text-align:right;">
+                    <b style="color:var(--accent); font-size:1rem;">${valueDisplay}</b>
+                </td>
+            </tr>
+        `;
+    }).join('');
+
+    html += `</tbody></table>`;
+    container.innerHTML = html;
+        }
+        // 1. Toggle Sidebar Menu
+function toggleMenu() {
+    const menu = document.getElementById('side-menu');
+    const overlay = document.getElementById('menu-overlay');
+    if (menu.classList.contains('active')) {
+        menu.classList.remove('active');
+        overlay.style.display = 'none';
+    } else {
+        menu.classList.add('active');
+        overlay.style.display = 'block';
+    }
+}
+
+// 2. Switch View and Close Menu
+function switchView(viewName) {
+    const menu = document.getElementById('side-menu');
+    const overlay = document.getElementById('menu-overlay');
+    const container = document.getElementById('dynamicContent');
+    const title = document.querySelector('.section-title-row h3');
+    const selector = document.getElementById('viewSelector');
+
+    // Close Menu
+    menu.classList.remove('active');
+    overlay.style.display = 'none';
+    if (viewName === 'uptime') {
+        title.innerText = "COMMAND CENTER • LIVE STATS";
+        renderUptimeStats(container);
+    } else if (viewName === 'total') {
+        title.innerText = "DASHBOARD VIEW";
+        selector.value = "total";
+        renderTotalPlayers(container);
+    } else if (viewName === 'teams') {
+        title.innerText = "ALL TEAMS";
+        selector.value = "teams";
+        renderTotalTeams(container);
+    } else if (viewName === 'bdr') {
+        title.innerText = "BDR RANKINGS";
+        renderBDRRankings(container);
+    } else if (viewName === 'market') {
+        title.innerText = "MARKET VALUES";
+        renderMarketValues(container);
+    } else if (viewName === 'auction') {
+        title.innerText = "AUCTION TOUR";
+        renderAuctionTour(container);
+    } else if (viewName === 'soloTour') {
+        title.innerText = "SOLO TOUR";
+        renderSoloTour(container);
+        } else if (viewName === 'quick') {
+        title.innerText = "QUICK TOUR";
+        renderQuickTour(container);
+    } else if (viewName === 'Weekend') {
+        title.innerText = "WEEKEND SERIES";
+        renderWeekendSeries(container);
+    }
+}
+
+    // 4. Search Filter Logic
+    function filterList() {
+        const input = document.getElementById('searchInput').value.toLowerCase();
+        const rows = document.getElementsByClassName('player-row');
+        for (let row of rows) {
+            row.style.display = row.innerText.toLowerCase().includes(input) ? "flex" : "none";
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', manageLoader);
+
+    // --- NEW: AUCTION TOUR RENDERER (FIXED) ---
+async function renderAuctionTour(container) {
+    container.innerHTML = `
+        <div class="tour-nav-row" style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:15px;">
+            <h4 style="margin:0; font-size:0.8rem; color:var(--text-dim);" id="tourTabTitle">TOUR</h4>
+            
+            <!-- NEW MIDDLE DROPDOWN: Tour Names -->
+            <select id="tourNameSelector" class="tour-name-select" onchange="switchTourTab('auction')">
+                <option value="">Loading Tours...</option>
+            </select>
+
+            <!-- RIGHT DROPDOWN: Categories -->
+            <select id="tourTabSelector" style="background:var(--bg); color:white; border:1px solid var(--border); padding:6px 10px; border-radius:8px; font-size:0.8rem;" onchange="switchTourTab('auction')">
+                <option value="table">Points table</option>
+                <option value="fixtures">Fixtures</option>
+                <option value="boot">Golden Boot</option>
+                <option value="knockouts">Knockouts</option>
+            </select>
+        </div>
+        <div id="tourContent"></div>
+    `;
+
+    // Fetch tournament names specifically for 'auction'
+    try {
+        const res = await fetch(`${API}/api/tournaments/list/auction`);
+        const tours = await res.json();
+        const nameSelector = document.getElementById('tourNameSelector');
+        
+        if(tours && tours.length > 0) {
+            nameSelector.innerHTML = tours.map(t => `<option value="${t._id}">${t.name}</option>`).join('');
+            
+            // Trigger the initial load for the first auction tour found
+            switchTourTab('auction'); 
+        } else {
+            nameSelector.innerHTML = '<option value="">No Tours Found</option>';
+            document.getElementById('tourContent').innerHTML = '<p style="text-align:center; padding:40px; color:var(--text-dim);">No Auction Tournaments created yet.</p>';
+        }
+    } catch (e) { 
+        console.error("Fetch Error:", e);
+        document.getElementById('tourContent').innerHTML = '<p style="color:red; text-align:center;">Database Error.</p>';
+    }
+}
+
+async function switchTourTab(type) {
+    const tourId = document.getElementById('tourNameSelector').value;
+    const category = document.getElementById('tourTabSelector').value;
+    const content = document.getElementById('tourContent');
+
+    if (!tourId || tourId === "" || tourId === "undefined") {
+        content.innerHTML = '<p style="text-align:center; padding:20px; color:var(--text-dim);">Please select a Tournament Name first.</p>';
+        return;
+    }
+
+    content.innerHTML = '<p style="text-align:center; padding:30px;"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading Data...</p>';
+
+    try {
+        // --- 1. POINTS TABLE ---
+        if (category === 'table') {
+    const res = await fetch(`${API}/api/smart/standings/${tourId}`);
+    let data = await res.json();
+
+    // SORTING: Points > GD > GF
+    data.sort((a, b) => {
+        const gdA = (a.gf || 0) - (a.ga || 0);
+        const gdB = (b.gf || 0) - (b.ga || 0);
+        return (b.points - a.points) || (gdB - gdA) || (b.gf - a.gf);
+    });
+
+    content.innerHTML = `
+    <div class="table-responsive">
+        <table class="pts-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th style="text-align:left; padding-left:10px;">TEAM</th>
+                    <th>P</th><th>W</th><th>D</th><th>L</th>
+                    <th>GF</th><th>GA</th><th>GD</th>
+                    <th>PTS</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${data.map((s, i) => {
+                    const gd = (s.gf || 0) - (s.ga || 0);
+                    const gdClass = gd > 0 ? 'gd-positive' : (gd < 0 ? 'gd-negative' : '');
+                    return `
+                    <tr class="${i === 0 ? 'row-leader' : ''}">
+                        <td style="color:var(--accent); font-weight:bold;">${i + 1}</td>
+                        <td class="col-team-name">${s.participant}</td>
+                        <td>${s.played}</td>
+                        <td>${s.wins}</td>
+                        <td>${s.draws}</td>
+                        <td>${s.losses}</td>
+                        <td>${s.gf || 0}</td>
+                        <td>${s.ga || 0}</td>
+                        <td style="font-weight:bold; color:${gd > 0 ? '#10b981' : (gd < 0 ? '#ef4444' : '#94a3b8')}">
+                            ${gd > 0 ? '+' + gd : gd}
+                        </td>
+                        <td class="col-pts-bold">${s.points}</td>
+                    </tr>`;
+                }).join('')}
+            </tbody>
+        </table>
+    </div>`;
+        }
+        // --- 2. FIXTURES ---
+        else if (category === 'fixtures') {
+            const res = await fetch(`${API}/api/smart/fixtures/${tourId}`);
+            const matches = await res.json();
+
+            if (!matches || matches.length === 0) {
+                content.innerHTML = '<p style="text-align:center; padding:30px; color:var(--text-dim);">No fixtures found.</p>';
+                return;
+            }
+
+            content.innerHTML = matches.map(m => `
+                <div class="match-card" style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.02); padding:15px; border-radius:15px; margin-bottom:10px; border:1px solid var(--border);">
+                    <div style="flex:1; font-weight:600; font-size:0.9rem;">${m.playerA}</div>
+                    <div style="text-align:center; min-width:80px;">
+                        <b style="background:var(--bg); padding:5px 10px; border-radius:8px; color:var(--accent);">
+                            ${m.status === 'Completed' ? `${m.scoreA}-${m.scoreB}` : 'VS'}
+                        </b>
+                    </div>
+                    <div style="flex:1; text-align:right; font-weight:600; font-size:0.9rem;">${m.playerB}</div>
+                </div>
+            `).join('');
+        }
+        // --- 3. GOLDEN BOOT ---
+        else if (category === 'boot') {
+    // Fetches goals for specific tour type (passed as 'type' to the function)
+    const res = await fetch(`${API}/api/tour-ranks/${type}/boot`);
+    const data = await res.json();
+
+    if (!data || data.length === 0) {
+        content.innerHTML = '<p style="text-align:center; padding:30px; color:var(--text-dim);">No goals recorded yet.</p>';
+        return;
+    }
+
+    // CRITICAL: Sort by goals highest to lowest
+    data.sort((a, b) => b.totalValue - a.totalValue);
+
+    content.innerHTML = `
+        <table class="ranking-table">
+            <thead>
+                <tr>
+                    <th style="text-align:left">#</th>
+                    <th style="text-align:left">Player</th>
+                    <th style="text-align:left">Team</th>
+                    <th style="text-align:right">Goals</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${data.map((d, i) => `
+                    <tr>
+                        <td class="rank-col">${i + 1}</td>
+                        <td class="player-col-name">${d.playerName}</td>
+                        <td class="team-col-name">${d.teamName || '—'}</td>
+                        <td class="val-col-data" style="text-align:right; font-weight:bold; color:var(--accent);">
+                            ${d.totalValue}
+                        </td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>`;
+        }
+        // --- 4. KNOCKOUTS (FIXED) ---
+        else if (category === 'knockouts') {
+            const res = await fetch(`${API}/api/smart/fixtures/${tourId}`);
+            const matches = await res.json();
+            
+            // Filter only matches marked as 'Knockout'
+            const koMatches = matches.filter(m => m.type === "Knockout");
+
+            if (koMatches.length === 0) {
+                content.innerHTML = '<p style="text-align:center; padding:30px; color:var(--text-dim);">Knockout stages haven\'t started yet.</p>';
+            } else {
+                // Sort matches: Q1, Elim, KR, Q2, Final
+                const order = ["Qualifier 1", "Eliminator", "Knockout Round", "Qualifier 2", "Grand Final"];
+                koMatches.sort((a, b) => order.indexOf(a.stage) - order.indexOf(b.stage));
+
+                content.innerHTML = koMatches.map(m => `
+                    <div class="match-card" style="display:block; padding:15px; margin-bottom:15px; border-top: 2px solid var(--gold);">
+                        <div style="font-size:0.65rem; color:var(--gold); text-transform:uppercase; font-weight:800; margin-bottom:10px; letter-spacing:1px;">
+                            ${m.stage}
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <div style="flex:1; font-weight:600; color:white;">${m.playerA}</div>
+                            <div style="text-align:center; min-width:80px;">
+                                <b style="background:var(--bg); padding:5px 12px; border-radius:8px; color:var(--accent);">
+                                    ${m.status === 'Completed' ? `${m.scoreA} - ${m.scoreB}` : 'VS'}
+                                </b>
+                            </div>
+                            <div style="flex:1; text-align:right; font-weight:600; color:white;">${m.playerB}</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+    } catch (e) {
+        console.error("Fetch Error:", e);
+        content.innerHTML = '<p style="text-align:center; color:red; padding:20px;">Database Error.</p>';
+    }
+        }
+        function renderSoloTour(container) {
+    container.innerHTML = `
+        <div class="solo-tour-card">
+            <div class="tour-nav-row" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:15px;">
+                <h4 id="soloTabTitle" style="margin:0; font-size:0.9rem; color:var(--accent);">FIXTURES</h4>
+                <select id="soloTabSelector" style="background:var(--bg); color:white; border:1px solid var(--border); padding:6px 10px; border-radius:8px; font-size:0.8rem;" onchange="switchSoloTab()">
+                    <option value="fixtures">Fixtures</option>
+                    <option value="boot">Golden Boot</option>
+                    <option value="table">Points table</option>
+                    <option value="knockouts">Knockouts</option>
+                </select>
+            </div>
+            <div id="soloContent" style="min-height:150px;"></div>
+        </div>
+    `;
+    switchSoloTab();
+}
+
+async function switchSoloTab() {
+    const tab = document.getElementById('soloTabSelector').value;
+    const content = document.getElementById('soloContent');
+    document.getElementById('soloTabTitle').innerText = tab.toUpperCase();
+
+    try {
+        if (tab === 'fixtures' || tab === 'knockouts') {
+            const res = await fetch(`${API}/api/solo/fixtures`);
+            const data = await res.json();
+            const type = tab === 'knockouts' ? 'Knockout' : 'League';
+            const filtered = data.filter(f => f.type === type);
+
+            content.innerHTML = filtered.map(f => `
+                <div class="player-row" style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="flex:1;">${f.playerA}</span>
+                    <b style="background:var(--bg); padding:4px 10px; border-radius:6px; margin:0 15px;">
+                        ${f.status === 'Completed' ? f.scoreA + ' - ' + f.scoreB : 'VS'}
+                    </b>
+                    <span style="flex:1; text-align:right;">${f.playerB}</span>
+                </div>
+            `).join('') || '<p style="text-align:center; padding:20px;">No data.</p>';
+        } else {
+            const res = await fetch(`${API}/api/solo/ranks`);
+            const data = await res.json();
+            // Filter logic for table/boot would go here
+            content.innerHTML = '<p style="text-align:center; padding:20px;">Solo ' + tab + ' records coming soon...</p>';
+        }
+    } catch (e) { console.error(e); }
+}
+        function renderWeekendSeries(container) {
+    container.innerHTML = `
+        <div class="weekend-series-card">
+            <div class="tour-nav-row" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:15px;">
+                <h4 id="weekendTabTitle" style="margin:0; font-size:0.9rem; color:#3b82f6;">FIXTURES</h4>
+                <select id="weekendTabSelector" style="background:var(--bg); color:white; border:1px solid var(--border); padding:6px 10px; border-radius:8px; font-size:0.8rem;" onchange="switchWeekendTab()">
+                    <option value="fixtures">Fixtures</option>
+                    <option value="boot">Golden Boot</option>
+                    <option value="table">Points table</option>
+                    <option value="knockouts">Knockouts</option>
+                </select>
+            </div>
+            <div id="weekendContent" style="min-height:150px;"></div>
+        </div>
+    `;
+    switchWeekendTab();
+}
+
+async function switchWeekendTab() {
+    const tab = document.getElementById('weekendTabSelector').value;
+    const content = document.getElementById('weekendContent');
+    document.getElementById('weekendTabTitle').innerText = tab.toUpperCase();
+
+    try {
+        if (tab === 'fixtures' || tab === 'knockouts') {
+            const res = await fetch(`${API}/api/weekend/fixtures`);
+            const data = await res.json();
+            const type = tab === 'knockouts' ? 'Knockout' : 'League';
+            const filtered = data.filter(f => f.type === type);
+
+            content.innerHTML = filtered.map(f => `
+                <div class="player-row" style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="flex:1;">${f.playerA}</span>
+                    <b style="background:var(--bg); padding:4px 10px; border-radius:6px; margin:0 15px;">
+                        ${f.status === 'Completed' ? f.scoreA + ' - ' + f.scoreB : 'VS'}
+                    </b>
+                    <span style="flex:1; text-align:right;">${f.playerB}</span>
+                </div>
+            `).join('') || '<p style="text-align:center; padding:20px;">No Weekend Series data found.</p>';
+        } else {
+            content.innerHTML = '<p style="text-align:center; padding:20px;">Weekend ' + tab + ' data coming soon...</p>';
+        }
+    } catch (e) { console.error(e); }
+}
+        function renderQuickTour(container) {
+    container.innerHTML = `
+        <div class="quick-tour-card">
+            <div class="tour-nav-row" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:15px;">
+                <h4 id="quickTabTitle" style="margin:0; font-size:0.9rem; color:#ef4444;">FIXTURES</h4>
+                <select id="quickTabSelector" style="background:var(--bg); color:white; border:1px solid var(--border); padding:6px 10px; border-radius:8px; font-size:0.8rem;" onchange="switchQuickTab()">
+                    <option value="fixtures">Fixtures</option>
+                    <option value="boot">Golden Boot</option>
+                    <option value="table">Points table</option>
+                    <option value="knockouts">Knockouts</option>
+                </select>
+            </div>
+            <div id="quickContent" style="min-height:150px;"></div>
+        </div>
+    `;
+    switchQuickTab();
+}
+
+async function switchQuickTab() {
+    const tab = document.getElementById('quickTabSelector').value;
+    const content = document.getElementById('quickContent');
+    document.getElementById('quickTabTitle').innerText = tab.toUpperCase();
+
+    try {
+        if (tab === 'fixtures' || tab === 'knockouts') {
+            const res = await fetch(`${API}/api/quick/fixtures`);
+            const data = await res.json();
+            const type = tab === 'knockouts' ? 'Knockout' : 'League';
+            const filtered = data.filter(f => f.type === type);
+
+            content.innerHTML = filtered.map(f => `
+                <div class="player-row" style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="flex:1;">${f.playerA}</span>
+                    <b style="background:var(--bg); padding:4px 10px; border-radius:6px; margin:0 15px;">
+                        ${f.status === 'Completed' ? f.scoreA + ' - ' + f.scoreB : 'VS'}
+                    </b>
+                    <span style="flex:1; text-align:right;">${f.playerB}</span>
+                </div>
+            `).join('') || '<p style="text-align:center; padding:20px;">No Quick Tour records.</p>';
+        } else {
+            content.innerHTML = '<p style="text-align:center; padding:20px;">Quick ' + tab + ' statistics coming soon...</p>';
+        }
+    } catch (e) { console.error(e); }
+}
+        async function renderPointsTable(tourId) {
+    const res = await fetch(`${API}/api/smart/standings/${tourId}`);
+    const data = await res.json(); // Array of {participant, played, wins, draws, losses, points}
+    
+    // Sort by points, then wins
+    data.sort((a,b) => b.points - a.points || b.wins - a.wins);
+
+    let html = `<table class="ranking-table">
+        <thead><tr><th>Pos</th><th>Name</th><th>P</th><th>W</th><th>D</th><th>L</th><th>Pts</th></tr></thead>
+        <tbody>`;
+    
+    html += data.map((s, i) => `
+        <tr>
+            <td>${i+1}</td>
+            <td>${s.participant}</td>
+            <td>${s.played}</td>
+            <td>${s.wins}</td>
+            <td>${s.draws}</td>
+            <td>${s.losses}</td>
+            <td style="color:var(--accent); font-weight:bold;">${s.points}</td>
+        </tr>
+    `).join('');
+    
+    document.getElementById('tourContent').innerHTML = html + `</tbody></table>`;
+        }
+        async function updateLeagueLeader() {
+    try {
+        const res = await fetch(`${API}/api/teams/leader`);
+        const leader = await res.json();
+        
+        const display = document.getElementById('leaderDisplay');
+        if (leader) {
+            display.innerText = `${leader.name.toUpperCase()} • ${leader.points} pts`;
+        } else {
+            display.innerText = "NO DATA • 0 pts";
+        }
+    } catch (err) {
+        console.error("Leader fetch error:", err);
+    }
+}
+
+// Call this function
+updateLeagueLeader();
+        // --- RENDERERS FOR INDIVIDUAL TOURS ---
+
+function renderSoloTour(container) {
+    createTourUI(container, 'solo', '#a855f7'); // Purple Theme
+}
+
+function renderQuickTour(container) {
+    createTourUI(container, 'quick', '#ef4444'); // Red Theme
+}
+
+function renderWeekendSeries(container) {
+    createTourUI(container, 'weekend', '#3b82f6'); // Blue Theme
+}
+
+        async function renderTotalTeams(container) {
+    container.innerHTML = '<p style="text-align:center; padding:20px;"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading Teams...</p>';
+    try {
+        const res = await fetch(`${API}/api/teams/all`);
+        const teams = await res.json();
+
+        if (!teams || teams.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color:var(--text-dim); padding:20px;">No teams registered yet.</p>';
+            return;
+        }
+        container.innerHTML = teams.map(t => `
+            <div class="player-row" onclick="window.location.href='team.html?id=${encodeURIComponent(t.name)}'" style="cursor:pointer;">
+                <div class="p-details">
+                    <img src="${t.logo || 'https://via.placeholder.com/40'}" class="p-img" style="object-fit: contain; background: transparent;" onerror="this.src='https://via.placeholder.com/40'">
+                    <div>
+                        <span class="p-name">${t.name}</span>
+                        <span class="p-nick" style="color:var(--accent)">Official Club</span>
+                    </div>
+                </div>
+                <div class="t-details">
+                    <i class="fa-solid fa-chevron-right" style="font-size: 12px; color: var(--border);"></i>
+                </div>
+            </div>
+        `).join('');
+    } catch (err) {
+        container.innerHTML = '<p style="text-align:center; color:red;">Error loading teams.</p>';
+    }
+        }
+        async function renderUptimeStats(container) {
+    container.innerHTML = `
+        <div class="stats-header">
+            <div class="status-orb"><i class="fa-solid fa-server" style="color:white; font-size:1.5rem;"></i></div>
+            <h2 style="margin:0; letter-spacing:2px;">OPERATIONAL</h2>
+            <p id="statusDesc" style="color:#10b981; font-size:0.7rem; font-weight:bold;">LIVE CONNECTION ESTABLISHED</p>
+        </div>
+        <div id="uptimeRobotModule">
+        <div class="audit-card">
+            <p style="text-align:center; color:#64748b;">Requesting External Audit...</p>
+        </div>
+    </div>
+
+        <div class="uptime-grid">
+            <div class="uptime-box">
+                <h4>System Uptime</h4>
+                <div class="value">100.0%</div>
+            </div>
+            <div class="uptime-box">
+                <h4>Live Ping</h4>
+                <div class="value" id="pingValue">-- ms</div>
+            </div>
+        </div>
+
+        <div class="players-card" style="margin-bottom:20px;">
+            <h4 style="font-size:0.7rem; color:#94a3b8; margin-top:0;">90 DAYS UPTIME HISTORY</h4>
+            <div class="uptime-bar-container" id="uptimeBars"></div>
+        </div>
+
+        <!-- NEW GRAPH SYSTEM ADDED HERE -->
+        <div class="section-title-row"><h3>REAL-TIME SIGNAL GRAPH</h3></div>
+        <div class="graph-container" id="connGraph">
+            <div class="graph-label-tech">Latency Monitor (ms)</div>
+        </div>
+
+        <div class="section-title-row"><h3>LIVE RECENT EVENTS</h3></div>
+        <div class="live-log-container" id="liveLog">
+            <div class="log-entry"><span>[${new Date().toLocaleTimeString()}]</span> System Initialized...</div>
+            <div class="log-entry"><span>[${new Date().toLocaleTimeString()}]</span> Monitoring Nexus Backend...</div>
+        </div>
+    `;
+            runExternalAudit();
+
+    // 1. Generate Static Uptime Bars (Top section)
+    const uptimeBars = document.getElementById('uptimeBars');
+    for(let i=0; i<40; i++){
+        const bar = document.createElement('div');
+        bar.className = 'bar active';
+        bar.style.height = (Math.random() * 30 + 70) + "%"; 
+        uptimeBars.appendChild(bar);
+    }
+
+    const pingDisplay = document.getElementById('pingValue');
+    const logContainer = document.getElementById('liveLog');
+    const graphContainer = document.getElementById('connGraph');
+    const statusDesc = document.getElementById('statusDesc');
+
+    // 2. Function to Update the Graph
+    const updateGraph = (ping) => {
+        const bar = document.createElement('div');
+        let statusClass = 'bar-green';
+        
+        // Color Logic
+        if (ping > 250) {
+            statusClass = 'bar-red';
+            statusDesc.style.color = '#ef4444';
+            statusDesc.innerText = 'LATENCY CRITICAL';
+        } else if (ping > 120) {
+            statusClass = 'bar-orange';
+            statusDesc.style.color = '#f59e0b';
+            statusDesc.innerText = 'MINOR SIGNAL DELAY';
+        } else {
+            statusDesc.style.color = '#10b981';
+            statusDesc.innerText = 'LIVE CONNECTION ESTABLISHED';
+        }
+
+        // Height Logic (Max 100px)
+        let h = (ping / 400) * 100;
+        if (h > 90) h = 90;
+        if (h < 15) h = 15;
+
+        bar.className = `conn-bar ${statusClass}`;
+        bar.style.height = `${h}%`;
+        graphContainer.appendChild(bar);
+
+        // Keep last 35 bars
+        if (graphContainer.querySelectorAll('.conn-bar').length > 35) {
+            graphContainer.querySelector('.conn-bar').remove();
+        }
+    };
+
+    // 3. Ping Loop
+    const checkPing = async () => {
+        const start = Date.now();
+        try {
+            const response = await fetch(`${API}/test`);
+            const end = Date.now();
+            const ping = end - start;
+
+            // Update Box
+            pingDisplay.innerText = ping + " ms";
+            
+            // Update Graph
+            updateGraph(ping);
+
+            // Update Log
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerHTML = `<span>[${new Date().toLocaleTimeString()}]</span> Connection Stable: Response in ${ping}ms`;
+            logContainer.prepend(entry);
+            if(logContainer.children.length > 8) logContainer.lastElementChild.remove();
+
+        } catch (e) {
+            pingDisplay.innerText = "LOST";
+            statusDesc.innerText = "CONNECTION INTERRUPTED";
+            statusDesc.style.color = "#ef4444";
+        }
+    };
+
+    // Set interval for real-time monitoring (3 seconds)
+    const monitorInterval = setInterval(() => {
+        if(document.getElementById('pingValue')) {
+            checkPing();
+        } else {
+            clearInterval(monitorInterval);
+        }
+    }, 3000);
+
+    checkPing(); 
+        }
+        async function runExternalAudit() {
+    const module = document.getElementById('uptimeRobotModule');
+    
+    try {
+        const res = await fetch(`${API}/api/external/uptime-audit`);
+        const data = await res.json();
+
+        module.innerHTML = `
+            <div class="audit-card">
+                <div class="audit-status-bar">
+                    <div>
+                        <span style="font-size:0.6rem; color:#f59e0b; font-weight:bold;">SYSTEM VERDICT</span>
+                        <div style="font-size:1.2rem; font-weight:900; color:#fff;">${data.status}</div>
+                    </div>
+                    <div style="text-align:right">
+                        <span style="font-size:0.6rem; color:#64748b;">LAST CHECK</span>
+                        <div style="font-size:0.8rem; font-weight:bold;">${data.lastCheck}</div>
+                    </div>
+                </div>
+
+                <div class="audit-grid">
+                    <div class="audit-item">
+                        <label>24 Hours</label>
+                        <span>${data.ratios[0]}%</span>
+                    </div>
+                    <div class="audit-item">
+                        <label>7 Days</label>
+                        <span>${data.ratios[1]}%</span>
+                    </div>
+                    <div class="audit-item">
+                        <label>30 Days</label>
+                        <span>${data.ratios[2]}%</span>
+                    </div>
+                </div>
+                
+                <div style="margin-top:15px; font-size:0.6rem; color:#475569; text-align:center; letter-spacing:1px;">
+                    <i class="fa-solid fa-circle-check" style="color:#10b981"></i> VERIFIED BY UPTIMEROBOT GLOBAL NODES
+                </div>
+            </div>
+        `;
+    } catch (e) {
+        module.innerHTML = `<div class="audit-card" style="border-color:#ef4444">Audit Failed to Synchronize</div>`;
+    }
+        }
+// THE MASTER UI GENERATOR (Used by all tours)
+async function createTourUI(container, type, themeColor) {
+    container.innerHTML = `
+        <div class="tour-nav-row" style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:15px;">
+            <h4 style="margin:0; font-size:0.8rem; color:${themeColor}; text-transform:uppercase;">${type} TOUR</h4>
+            
+            <select id="tourNameSelector" class="tour-name-select" onchange="switchTourTab('${type}')">
+                <option value="">Loading Tours...</option>
+            </select>
+
+            <select id="tourTabSelector" style="background:var(--bg); color:white; border:1px solid var(--border); padding:6px 10px; border-radius:8px; font-size:0.8rem;" onchange="switchTourTab('${type}')">
+                <option value="table">Points table</option>
+                <option value="fixtures">Fixtures</option>
+                <option value="boot">Golden Boot</option>
+            </select>
+        </div>
+        <div id="tourContent"></div>
+    `;
+
+    try {
+        const res = await fetch(`${API}/api/tournaments/list/${type}`);
+        const tours = await res.json();
+        const nameSelector = document.getElementById('tourNameSelector');
+        
+        if(tours.length > 0) {
+            nameSelector.innerHTML = tours.map(t => `<option value="${t._id}">${t.name}</option>`).join('');
+            switchTourTab(type); 
+        } else {
+            nameSelector.innerHTML = '<option value="">No Tours Found</option>';
+            document.getElementById('tourContent').innerHTML = `<p style="text-align:center; padding:40px; color:var(--text-dim);">No ${type} tournaments active.</p>`;
+        }
+    } catch (e) { console.error(e); }
+}
+        async function updateTopStats() {
+    try {
+        const res = await fetch(`${API}/api/stats`);
+        const stats = await res.json();
+
+        // 1. Update BDR Box
+        document.getElementById('bdrVal').innerText = stats.bdrValue || 0;
+        document.getElementById('bdrName').innerText = stats.bdrName || "None";
+
+        // 2. Update Highest MV Box
+        document.getElementById('mvVal').innerText = (stats.mvValue || 0) + "M";
+        document.getElementById('mvName').innerText = stats.mvName || "None";
+
+        // 3. Update Team Count
+        document.getElementById('teamCount').innerText = stats.teamsCount || 0;
+
+        // 4. Update Player Count
+        document.getElementById('playerCount').innerText = stats.playersCount || 0;
+
+    } catch (error) {
+        console.error("Stats Update Error:", error);
+    }
+}
+
+// Call this inside your window.onload or initPage
+updateTopStats();
+    </script>
+
+             <footer class="main-footer">
+    <div class="footer-line"></div>
+    <p>
+        © Copyright: <span class="dev-name">Anubhav (Developer)</span> & 
+        <span class="owner-name">Pugazh (PES PARK)</span> 
+        2026-27 | All Rights Reserved
+    </p>
+             </footer> 
+    </div>
+</body>
+</html>

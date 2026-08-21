@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player Profile | NEXUS LEGENDS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg: #030712;
+            --card-bg: #0f172a;
+            --border: #1e293b;
+            --accent: #10b981;
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --win: #10b981;
+            --loss: #ef4444;
+            --draw: #f59e0b;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 15px;
+            padding-bottom: 80px;
+        }
+
+        .top-nav { display: flex; align-items: center; padding: 10px 0 20px; }
+        .back-link { color: var(--text-dim); text-decoration: none; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; }
+
+        /* Card System */
+        .glass-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        /* Profile Header */
+        .profile-header { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; }
+        .p-avatar { 
+            width: 70px; height: 70px; border-radius: 16px; 
+            background: #1e293b; border: 1.5px solid var(--border);
+            overflow: hidden; display: flex; align-items: center; justify-content: center;
+        }
+        .p-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .p-name-area h1 { margin: 0; font-size: 1.5rem; }
+        .p-name-area p { margin: 4px 0 0; color: var(--text-dim); font-size: 0.9rem; }
+
+        /* Stats Grid */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+        .stat-box { background: #020617; border: 1px solid var(--border); padding: 12px 5px; border-radius: 12px; text-align: center; }
+        .stat-box span { display: block; font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; margin-bottom: 5px; }
+        .stat-box b { font-size: 1.2rem; }
+
+        /* Match History Row */
+        .section-title { font-size: 1rem; margin-bottom: 18px; display: flex; align-items: center; gap: 10px; }
+        .match-row { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #1e293b; }
+        .m-date { font-size: 0.75rem; color: var(--text-dim); width: 45px; }
+        .m-opp { flex: 1; font-size: 0.9rem; }
+        .m-score { background: #1e293b; padding: 3px 8px; border-radius: 6px; margin: 0 10px; font-weight: bold; }
+
+        /* Badges */
+        .badge { padding: 4px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: 900; width: 45px; text-align: center; }
+        .win { color: var(--win); border: 1px solid rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.1); }
+        .loss { color: var(--loss); border: 1px solid rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.1); }
+        .draw { color: var(--draw); border: 1px solid rgba(245, 158, 11, 0.3); background: rgba(245, 158, 11, 0.1); }
+
+        /* Squad Section */
+        .squad-img { width: 100%; border-radius: 12px; border: 1.5px solid var(--border); margin-top: 10px; }
+
+        /* Season Summary */
+        .summary-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1e293b; font-size: 0.9rem; }
+        .summary-row span:last-child { font-weight: bold; }
+
+        /* Trophy Grid */
+        .trophy-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .trophy-item { background: #020617; border: 1px solid var(--border); border-radius: 12px; padding: 15px; display: flex; align-items: center; gap: 12px; }
+        .trophy-icon { font-size: 1.5rem; color: #f59e0b; }
+        .trophy-count { font-size: 1.2rem; font-weight: 900; }
+        .trophy-label { font-size: 0.7rem; color: var(--text-dim); display: block; }
+
+        /* H2H Select */
+        .h2h-select { width: 100%; padding: 14px; background: #020617; color: white; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 15px; }
+
+        #loading { text-align: center; color: var(--text-dim); padding-top: 100px; }
+        /* --- FIXED RECENT FORM DESIGN --- */
+
+/* --- FIXED RECENT FORM DESIGN --- */
+/* --- FIXED RECENT FORM: ONLY COLORED LETTERS --- */
+.form-dots-wrapper {
+    display: flex;
+    gap: 15px; /* Spacing between letters */
+    margin-top: 10px;
+    align-items: center;
+}
+
+.form-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.dot-letter {
+    font-size: 1.2rem; /* Size of the W, L, D */
+    font-weight: 900;
+    text-align: center;
+    line-height: 1;
+}
+
+/* Colors for the letters */
+.f-win .dot-letter { color: #10b981; }   /* Green W */
+.f-loss .dot-letter { color: #ef4444; }  /* Red L */
+.f-draw .dot-letter { color: #ffffff; }  /* White D */
+        .captain-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(245, 158, 11, 0.15); /* Light gold transparent */
+    color: #f59e0b; /* Bright gold */
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.captain-badge i { font-size: 0.8rem; }
+        .modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 1000;
+}
+.modal-content {
+    background: #111827; width: 90%; max-width: 400px; border-radius: 20px;
+    padding: 24px; border: 1px solid #1f2937;
+}
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.close-x { background: transparent; border: none; color: #9ca3af; font-size: 24px; }
+
+.section-label { font-size: 0.7rem; color: #6b7280; font-weight: 800; letter-spacing: 1px; margin-bottom: 12px; }
+
+.upload-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; }
+.upload-box {
+    border: 2px dashed #374151; border-radius: 15px; height: 120px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: #9ca3af; font-size: 0.8rem; cursor: pointer; transition: 0.3s;
+}
+.upload-box:hover { border-color: #10b981; color: #10b981; background: rgba(16,185,129,0.05); }
+.upload-box i { font-size: 1.5rem; margin-bottom: 10px; }
+
+.character-grid { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 10px; }
+.char-item {
+    min-width: 80px; height: 80px; border-radius: 12px; border: 2px solid transparent;
+    cursor: pointer; position: relative; overflow: hidden; background: #1f2937;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.char-item img { width: 100%; height: 100%; object-fit: cover; }
+.char-item.active { border-color: #10b981; }
+.char-item.active::after {
+    content: "\f058"; font-family: "Font Awesome 6 Free"; font-weight: 900;
+    position: absolute; top: 5px; right: 5px; color: #10b981; background: #111827; border-radius: 50%;
+}
+
+.modal-footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: 30px; }
+.btn-cancel { background: transparent; border: none; color: #9ca3af; font-weight: bold; }
+.btn-save { background: #10b981; color: #000; border: none; padding: 10px 25px; border-radius: 8px; font-weight: 800; cursor: pointer; }
+        /* H2H Stat Boxes */
+.h2h-summary-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+.h2h-stat-box { 
+    padding: 20px; border-radius: 15px; text-align: center; 
+    border: 1px solid rgba(255,255,255,0.05); 
+}
+.h2h-stat-box.win { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+.h2h-stat-box.draw { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+.h2h-stat-box.loss { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+.h2h-val { display: block; font-size: 1.8rem; font-weight: 800; }
+.h2h-lab { font-size: 0.7rem; text-transform: uppercase; font-weight: bold; opacity: 0.8; }
+
+/* Squad Upload Area */
+.squad-upload-container {
+    width: 100%; min-height: 200px; border: 2px dashed #1e293b;
+    border-radius: 20px; cursor: pointer; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    transition: 0.3s; position: relative;
+}
+.squad-upload-container:hover { border-color: #10b981; background: rgba(16,185,129,0.02); }
+.upload-placeholder { text-align: center; color: #94a3b8; }
+.icon-circle { 
+    width: 60px; height: 60px; background: rgba(16,185,129,0.1); 
+    color: #10b981; border-radius: 18px; line-height: 60px; 
+    font-size: 1.5rem; font-weight: bold; margin: 0 auto 15px;
+    border: 2px solid #10b981;
+}
+.upload-hint { font-size: 0.7rem; color: #10b981; font-weight: bold; }
+#squadDisplay img { width: 100%; height: auto; display: block; }
+        /* New Premium Trophy Grid */
+.trophy-new-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 2 columns like Image 2 */
+    gap: 12px;
+}
+
+.trophy-card {
+    background: rgba(2, 6, 23, 0.5); /* Deep dark background */
+    border: 1px solid #1e293b;
+    border-radius: 16px;
+    padding: 15px 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: transform 0.2s;
+}
+
+.trophy-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+}
+
+.trophy-img-large {
+    width: 45px;
+    height: 45px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 5px rgba(245, 158, 11, 0.2));
+}
+
+.trophy-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.trophy-info b {
+    font-size: 1.4rem;
+    color: white;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.trophy-info span {
+    font-size: 0.7rem;
+    color: #94a3b8; /* Dim text color */
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+/* Mobile Tweak */
+@media (max-width: 380px) {
+    .trophy-info b { font-size: 1.1rem; }
+    .trophy-img-large { width: 35px; height: 35px; }
+}
+        
+
+/* --- CLEANED THEME CSS --- */
+.glass-card-themed {
+    position: relative;
+    width: 100%;
+    min-height: 150px;
+    border-radius: 24px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    padding: 20px 20px 15px 20px; /* Reduced padding to fit mobile better */
+    margin-bottom: 20px;
+    background-color: #0f172a;
+    background-size: cover;
+    background-position: center;
+    box-sizing: border-box; /* Prevents layout bleed */
+}
+
+/* Dimmer overlay to make text pop */
+.card-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(180deg, rgba(6, 11, 19, 0.4) 0%, rgba(6, 11, 19, 0.9) 100%);
+    z-index: 1;
+}
+
+/* Content MUST have z-index 2 to stay above the dim background */
+.card-content-top {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.p-avatar-square {
+    width: 80px;
+    height: 80px;
+    border-radius: 18px;
+    border: 1.5px solid rgba(255, 255, 255, 0.1);
+    background: #1e293b;
+    overflow: hidden;
+}
+
+.p-main-info {
+    flex: 1;
+}
+
+.p-main-info h1 {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+}
+
+/* Team Pill Style */
+.team-pill {
+    display: inline-block;
+    padding: 3px 10px;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    color: #10b981;
+    border-radius: 6px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-top: 5px;
+}
+
+.stats-grid-glass {
+    position: relative;
+    z-index: 2; /* Crucial: stays above overlay */
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin-top: auto; 
+    padding-bottom: 5px;
+}
+
+.stat-glass-box {
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 12px 5px;
+    text-align: center;
+}
+
+.stat-glass-box span { display: block; font-size: 0.6rem; color: #94a3b8; margin-bottom: 5px; text-transform: uppercase; }
+.stat-glass-box b { font-size: 1.1rem; color: white; }
+
+/* FIX: Ensure Squad Section isn't broken */
+.squad-upload-container {
+    width: 100%;
+    min-height: 200px;
+    border: 2px dashed var(--border);
+    border-radius: 20px;
+    background: var(--card-bg);
+}
+        .tactical-analysis-card {
+    padding: 25px;
+    margin-top: 20px;
+    background: radial-gradient(circle at center, rgba(16, 185, 129, 0.03) 0%, transparent 100%);
+}
+
+.chart-container-radar {
+    width: 100%;
+    max-width: 350px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.attribute-footer {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.6rem;
+    color: #475569;
+    letter-spacing: 2px;
+    font-weight: 800;
+}
+        .scout-card { border-left: 4px solid var(--accent); position: relative; }
+.scout-content { font-size: 0.85rem; line-height: 1.6; color: #cbd5e1; font-style: italic; }
+.dossier-line { width: 30px; height: 2px; background: var(--accent); margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+    <nav class="top-nav">
+        <a href="index.html" class="back-link"><i class="fa-solid fa-chevron-left"></i> Back</a>
+    </nav>
+
+    <div id="loading"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading Profile...</div>
+
+    <div id="playerContent" style="display: none;">
+        <div id="profileCard" class="glass-card-themed">
+    <div class="card-overlay"></div>
+        
+        <!-- HEADER STATS -->
+        <div class="card-content-top">
+        <div id="avatar" class="p-avatar-square"></div>
+        <div class="p-main-info">
+                    <h1 id="pName">Name</h1>
+            <div id="teamPill" class="team-pill">Loading...</div>
+                    <p id="pNick">"Nickname"</p>
+                </div>
+            </div>
+            <div id="capBadgeContainer" style="display: none;">
+    <div class="captain-badge">
+        <i class="fa-solid fa-crown"></i> Team Captain
+    </div>
+            </div>
+            <div class="stats-grid-glass">
+        <div class="stat-glass-box">
+            <span>Auction Price</span>
+            <b id="pAuction">0</b>
+        </div>
+        <div class="stat-glass-box">
+            <span>Market Value</span>
+            <b id="pMarket" style="color:#10b981;">0</b>
+        </div>
+        <div class="stat-glass-box">
+            <span>BDR Points</span>
+            <b id="pBDR">0</b>
+        </div>
+            </div>
+        </div>
+        <!-- Recent Form Display -->
+<div class="glass-card">
+    <span class="form-label">Recent Form</span>
+    <div id="recentFormDots" class="form-dots-wrapper">
+        <!-- Dots will be injected here -->
+    </div>
+</div>
+
+        <!-- MATCH HISTORY -->
+        <div class="glass-card">
+            <div class="section-title"><i class="fa-solid fa-clock-rotate-left"></i> Match history</div>
+            <div id="historyList"></div>
+        </div>
+        <div class="glass-card tactical-analysis-card">
+    <div class="section-title">
+        <i class="fa-solid fa-crosshairs"></i> Tactical Profile
+    </div>
+    <div class="chart-container-radar">
+        <canvas id="radarChart"></canvas>
+    </div>
+    <div class="attribute-footer">
+        <span>STATISTICS VERIFIED BY NEXUS ARCHIVES</span>
+    </div>
+        </div>
+        <!-- AI SCOUTING DOSSIER -->
+<div class="glass-card scout-card">
+    <div class="section-title">
+        <i class="fa-solid fa-user-secret"></i> AI Tactical Scout Report
+    </div>
+    <div id="aiScoutText" class="scout-content">
+        <i class="fa-solid fa-circle-notch fa-spin"></i> Analyzing tactical data...
+    </div>
+    <div class="dossier-line"></div>
+</div>
+
+        <!-- HEAD TO HEAD SECTION -->
+<div class="glass-card">
+    <div class="section-title">
+        <i class="fa-solid fa-swords"></i> Head-to-head record
+    </div>
+    
+    <!-- Styled Selector -->
+    <select id="h2hSelector" class="h2h-select" onchange="calculateH2H()">
+        <option value="">Select opponent...</option>
+    </select>
+
+    <!-- H2H Stats Area (Hidden until an opponent is picked) -->
+    <div id="h2hResultArea" style="display:none; margin-top:20px;">
+        <div class="h2h-summary-grid">
+            <div class="h2h-stat-box win">
+                <span class="h2h-val" id="h2hWins">0</span>
+                <span class="h2h-lab">Wins</span>
+            </div>
+            <div class="h2h-stat-box draw">
+                <span class="h2h-val" id="h2hDraws">0</span>
+                <span class="h2h-lab">Draws</span>
+            </div>
+            <div class="h2h-stat-box loss">
+                <span class="h2h-val" id="h2hLosses">0</span>
+                <span class="h2h-lab">Losses</span>
+            </div>
+        </div>
+        
+        <!-- List of matches against that specific opponent -->
+        <div id="h2hMatchList"></div>
+    </div>
+</div>
+
+<!-- Player Squad Section -->
+<div class="card">
+    <div class="card-header">
+        <i class="fa-regular fa-image"></i>
+        <h3>Player squad</h3>
+    </div>
+    <div class="squad-upload-container" onclick="document.getElementById('squadInput').click()">
+        <div id="squadDisplay">
+            <div class="upload-placeholder">
+                <div class="icon-circle">A</div>
+                <p>No squad image uploaded</p>
+                <span class="upload-hint">Click to upload squad</span>
+            </div>
+        </div>
+        <input type="file" id="squadInput" hidden onchange="handleSquadUpload(this)">
+    </div>
+</div>
+
+        <!-- SEASON SUMMARY -->
+        <div class="glass-card">
+            <div class="section-title"><i class="fa-solid fa-chart-simple"></i> Season summary</div>
+            <div class="stats-grid" style="margin-bottom: 20px;">
+                <div class="stat-box"><span>Wins</span><b id="sWins" style="color:var(--win)">0</b></div>
+                <div class="stat-box"><span>Draws</span><b id="sDraws" style="color:var(--draw)">0</b></div>
+                <div class="stat-box"><span>Losses</span><b id="sLoss" style="color:var(--loss)">0</b></div>
+            </div>
+            <div class="summary-row"><span>Games played</span><span id="sPlayed">0</span></div>
+            <div class="summary-row"><span>Win rate</span><span id="sWinRate">0%</span></div>
+            <div class="summary-row"><span>Goals scored</span><span id="sGoals">0</span></div>
+            <div class="summary-row"><span>Goals per match</span><span id="sGPM">0.0</span></div>
+        </div>
+
+        <!-- UPDATED TROPHIES SECTION -->
+<div class="glass-card">
+    <div class="section-title"><i class="fa-solid fa-trophy"></i> Trophies</div>
+    <div class="trophy-new-grid">
+        <!-- Ballon d'Or -->
+        <div class="trophy-card">
+            <img src="https://i.postimg.cc/vH0Rd0Sj/232666-removebg-preview.png" class="trophy-img-large">
+            <div class="trophy-info">
+                <b id="tBallon">0</b>
+                <span>Ballon d'Or</span>
+            </div>
+        </div>
+        <!-- Team League -->
+        <div class="trophy-card">
+            <img src="https://i.ibb.co/0fM0Z4M/league-trophy.png" class="trophy-img-large">
+            <div class="trophy-info">
+                <b id="tLeague">0</b>
+                <span>Team League</span>
+            </div>
+        </div>
+        <!-- UCL -->
+        <div class="trophy-card">
+            <img src="https://i.postimg.cc/QdC2NcRm/232668-removebg-preview.png" class="trophy-img-large">
+            <div class="trophy-info">
+                <b id="tUCL">0</b>
+                <span>Solo Golden Boot</span>
+            </div>
+        </div>
+        <!-- Weekly -->
+        <div class="trophy-card">
+            <img src="https://i.postimg.cc/qvqPB29Q/232667-removebg-preview.png" class="trophy-img-large">
+            <div class="trophy-info">
+                <b id="tWeekly">0</b>
+                <span>Auction Golden Boot</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <script>
+    const API = "https://pes-park-backend.onrender.com";
+    const urlParams = new URLSearchParams(window.location.search);
+    const playerId = urlParams.get('id');
+
+    let playerMatches = [];
+    let myName = "";
+    let selectedAvatarUrl = "";
+    let selectedBgUrl = "";
+    const IMGBB_API_KEY = "d78a83d90df20f4244a14823e5bdd755";
+
+    async function loadProfile() {
+        try {
+            const res = await fetch(`${API}/api/players/profile/${playerId}`);
+            const data = await res.json();
+            const p = data.player;
+            selectedAvatarUrl = p.image || "";
+            selectedBgUrl = p.backgroundImage || "";
+            playerMatches = data.matches;
+            myName = p.name;
+            const profileCard = document.getElementById('profileCard');
+const teamPill = document.getElementById('teamPill');
+            
+            
+
+            // 1. Info & Trophies
+            document.getElementById('pName').innerText = p.name;
+            document.getElementById('pNick').innerText = p.nickname ? `"${p.nickname}"` : "";
+            document.getElementById('pAuction').innerText = (p.auctionPrice || 0) + "M";
+            document.getElementById('pMarket').innerText = (p.marketValue || 0) + "M";
+            document.getElementById('pBDR').innerText = p.bdrPoints || 0;
+            const squadDiv = document.getElementById('squadDisplay');
+        if (squadDiv && p.squadImage) {
+            squadDiv.innerHTML = `<img src="${p.squadImage}" style="width:100%; height:100%; object-fit:cover; border-radius:15px;">`;
+        }
+
+        // --- BACKGROUND IMAGE ---
+        if (p.backgroundImage && profileCard) {
+                profileCard.style.backgroundImage = `url("${p.backgroundImage}")`;
+            }
+
+            if (teamPill) {
+                teamPill.innerText = p.teamName || "FREE AGENT";
+        }
+            renderRadarChart(p.attributes || {});
+            generateScoutReport(p);
+            
+            // --- UPDATE THIS PART IN loadProfile() ---
+const avatarBox = document.getElementById('avatar');
+
+// Add this line to make the box clickable
+avatarBox.onclick = () => {
+    document.getElementById('avatarModal').style.display = 'flex';
+};
+
+if (p.image && p.image !== "") {
+    // If image exists, show it as a centered background or an img tag
+    avatarBox.innerHTML = `<img src="${p.image}" style="width:100%; height:100%; object-fit:cover; border-radius:15px;">`;
+    avatarBox.style.background = "transparent"; // Remove the default grey background
+} else {
+    // Fallback if no image is set
+    avatarBox.innerHTML = `<i class="fa-solid fa-user" style="font-size:2rem; color:#374151;"></i>`;
+}
+            const t = p.trophies || {};
+            document.getElementById('tBallon').innerText = t.ballonDor || 0;
+            document.getElementById('tLeague').innerText = t.league || 0;
+            document.getElementById('tUCL').innerText = t.ucl || 0;
+            document.getElementById('tWeekly').innerText = t.weekly || 0;
+
+            // 2. Automated Season Summary
+            let w = 0, d = 0, l = 0, g = 0;
+            playerMatches.forEach(m => {
+                const isA = m.playerA === myName;
+                const myS = isA ? m.scoreA : m.scoreB;
+                const oppS = isA ? m.scoreB : m.scoreA;
+                g += myS;
+                if (myS > oppS) w++; else if (myS === oppS) d++; else l++;
+            });
+
+            document.getElementById('sWins').innerText = w;
+            document.getElementById('sDraws').innerText = d;
+            document.getElementById('sLoss').innerText = l;
+            document.getElementById('sPlayed').innerText = playerMatches.length;
+            document.getElementById('sGoals').innerText = g;
+            document.getElementById('sWinRate').innerText = playerMatches.length > 0 ? Math.round((w / playerMatches.length) * 100) + "%" : "0%";
+            document.getElementById('sGPM').innerText = playerMatches.length > 0 ? (g / playerMatches.length).toFixed(1) : "0.0";
+
+            // 3. Recent Form (Last 5)
+            // --- EXACT JS FIX FOR RECENT FORM ---
+const recentMatches = playerMatches.slice(0, 5).reverse();
+const formContainer = document.getElementById('recentFormDots');
+
+if (playerMatches.length > 0) {
+    formContainer.innerHTML = recentMatches.map(m => {
+        const isA = m.playerA === myName;
+        const myS = isA ? m.scoreA : m.scoreB;
+        const oppS = isA ? m.scoreB : m.scoreA;
+
+        let resClass = '';
+        let char = '';
+
+        if (myS > oppS) { 
+            resClass = 'f-win'; 
+            char = 'W'; 
+        } else if (myS < oppS) { 
+            resClass = 'f-loss'; 
+            char = 'L'; 
+        } else { 
+            resClass = 'f-draw'; 
+            char = 'D'; 
+        }
+
+        return `
+            <div class="form-item ${resClass}">
+                <span class="dot-letter">${char}</span>
+            </div>
+        `;
+    }).join('');
+} else {
+    formContainer.innerHTML = '<span style="color:var(--text-dim); font-size:0.7rem;">No matches played</span>';
+}
+
+            // 4. Match History & H2H Dropdown
+            document.getElementById('historyList').innerHTML = playerMatches.slice(0, 10).map(m => {
+                const isA = m.playerA === myName;
+                const res = (isA ? m.scoreA : m.scoreB) > (isA ? m.scoreB : m.scoreA) ? 'WIN' : (m.scoreA === m.scoreB ? 'DRAW' : 'LOSS');
+                return `<div class="match-row"><div class="m-date">${new Date(m.createdAt).toLocaleDateString('en-GB',{day:'2-digit',month:'short'})}</div><div class="m-opp">vs ${isA?m.playerB:m.playerA}</div><div class="m-score">${isA?m.scoreA:m.scoreB}-${isA?m.scoreB:m.scoreA}</div><div class="badge ${res.toLowerCase()}">${res}</div></div>`;
+            }).join('') || 'No records found';
+
+            // --- NEW: FETCH ALL PLAYERS FROM DATABASE ---
+            const allPlayersRes = await fetch(`${API}/api/players`);
+            const allPlayers = await allPlayersRes.json();
+            
+            // Show everyone except the current player
+            const otherPlayers = allPlayers.filter(p => p.name !== myName);
+
+            document.getElementById('h2hSelector').innerHTML = '<option value="">Select opponent...</option>' + 
+                otherPlayers.map(p => `<option value="${p.name}">${p.name}</option>`).join('');
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('playerContent').style.display = 'block';
+        } catch (e) { console.error(e); }
+    }
+
+    // 1. Calculate H2H when opponent is selected
+function calculateH2H() {
+    const oppName = document.getElementById('h2hSelector').value;
+    const resultArea = document.getElementById('h2hResultArea');
+    const matchList = document.getElementById('h2hMatchList');
+
+    if (!oppName) {
+        resultArea.style.display = 'none';
+        return;
+    }
+
+    // Filter matches played against this opponent
+    const filtered = playerMatches.filter(m => m.playerA === oppName || m.playerB === oppName);
+
+    let w = 0, d = 0, l = 0;
+    let listHtml = '';
+
+    filtered.forEach(m => {
+        const isA = m.playerA === myName;
+        const myS = isA ? m.scoreA : m.scoreB;
+        const oppS = isA ? m.scoreB : m.scoreA;
+
+        let resText = 'DRAW', resClass = 'f-draw';
+        if (myS > oppS) { w++; resText = 'WIN'; resClass = 'f-win'; }
+        else if (myS < oppS) { l++; resText = 'LOSS'; resClass = 'f-loss'; }
+        else { d++; }
+
+        listHtml += `
+            <div class="match-row">
+                <span class="m-date">${new Date(m.createdAt).toLocaleDateString('en-GB', {day:'numeric', month:'short'})}</span>
+                <span class="res-badge ${resClass}">${resText}</span>
+                <span class="m-score">${myS} - ${oppS}</span>
+            </div>`;
+    });
+
+    document.getElementById('h2hWins').innerText = w;
+    document.getElementById('h2hDraws').innerText = d;
+    document.getElementById('h2hLosses').innerText = l;
+    matchList.innerHTML = listHtml;
+    resultArea.style.display = 'block';
+}
+
+// 2. Add this inside your loadProfile() function where the dropdown was being populated
+// Find the line that creates the 'opps' set and replace it with:
+
+
+async function handleFileUpload(input, type) {
+    const file = input.files[0];
+    if (!file) return;
+
+    // Show loading state on button
+    const btn = document.getElementById('saveAvatarBtn');
+    btn.innerText = "Uploading...";
+    btn.disabled = true;
+
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+        const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+            method: "POST",
+            body: formData
+        });
+        const data = await res.json();
+        
+        if (type === 'avatar') {
+            selectedAvatarUrl = data.data.url;
+            alert("Avatar Uploaded!");
+        } else {
+            selectedBgUrl = data.data.url;
+            alert("Background Uploaded!");
+        }
+    } catch (err) {
+        alert("Upload failed. Check API Key.");
+    } finally {
+        btn.innerText = "Save";
+        btn.disabled = false;
+    }
+}
+
+function selectChar(el, url) {
+    // UI selection feedback
+    document.querySelectorAll('.char-item').forEach(item => item.classList.remove('active'));
+    el.classList.add('active');
+    selectedAvatarUrl = (url === 'none') ? "" : url;
+}
+        async function saveImages() {
+    const btn = document.getElementById('saveAvatarBtn');
+    btn.innerText = "Saving...";
+
+    try {
+        const response = await fetch(`${API}/api/players/${playerId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                image: selectedAvatarUrl, // This now contains the ImgBB link or the selected character
+                backgroundImage: selectedBgUrl
+            })
+        });
+        if (response.ok) {
+            closeModal();
+            location.reload(); // This triggers loadProfile() again to show the new image
+        }
+    } catch (err) {
+        alert("Error saving profile");
+    }
+        }
+        function closeModal() {
+    document.getElementById('avatarModal').style.display = 'none';
+        }
+        // Function to handle Squad Image Upload to ImgBB
+async function handleSquadUpload(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    const squadDisplay = document.getElementById('squadDisplay');
+    squadDisplay.innerHTML = `<p style="color:#10b981; font-weight:bold;">Uploading Squad...</p>`;
+
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+        // 1. Upload to ImgBB
+        const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+            method: "POST",
+            body: formData
+        });
+        const data = await res.json();
+        const imageUrl = data.data.url;
+
+        // 2. Save URL to Backend
+        const saveRes = await fetch(`${API}/api/players/${playerId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ squadImage: imageUrl })
+        });
+
+        if (saveRes.ok) {
+            squadDisplay.innerHTML = `<img src="${imageUrl}" style="width:100%; border-radius:15px;">`;
+            alert("Squad Image Updated!");
+        }
+    } catch (err) {
+        alert("Upload Failed!");
+        console.error(err);
+    }
+}
+        function renderRadarChart(attr) {
+    const ctx = document.getElementById('radarChart').getContext('2d');
+    
+    // Set global styles for Chart.js
+    Chart.defaults.color = '#94a3b8';
+    Chart.defaults.font.family = 'Inter';
+
+    new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: ['CONSISTENCY', 'BIG MATCH', 'SCORING', 'PLAYMAKING', 'DEFENSE', 'MENTAL'],
+            datasets: [{
+                data: [
+                    attr.consistency || 50, 
+                    attr.bigMatch || 50, 
+                    attr.scoring || 50, 
+                    attr.playmaking || 50, 
+                    attr.defense || 50, 
+                    attr.mental || 50
+                ],
+                backgroundColor: 'rgba(16, 185, 129, 0.2)', // Emerald tint
+                borderColor: '#10b981', // Emerald Line
+                borderWidth: 2,
+                pointBackgroundColor: '#10b981',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: '#10b981'
+            }]
+        },
+        options: {
+            scales: {
+                r: {
+                    angleLines: { color: 'rgba(255, 255, 255, 0.05)' },
+                    grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                    pointLabels: {
+                        font: { size: 10, weight: '900' },
+                        color: '#64748b'
+                    },
+                    ticks: { display: false, stepSize: 20 },
+                    suggestedMin: 0,
+                    suggestedMax: 100
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+        }
+        // Inside loadProfile() after fetching data 'p'
+async function generateScoutReport(player) {
+    try {
+        const res = await fetch(`${API}/api/bot/scout-player`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                name: player.name,
+                attributes: player.attributes || {},
+                marketValue: player.marketValue,
+                bdrPoints: player.bdrPoints
+            })
+        });
+        const data = await res.json();
+        document.getElementById('aiScoutText').innerText = data.report;
+    } catch (e) {
+        document.getElementById('aiScoutText').innerText = "Tactical data link offline.";
+    }
+}
+
+// Call it
+
+        window.onload = loadProfile;
+
+// Inside your loadProfile(), make sure to display the existing squad image:
+
+    </script>
+    <!-- Modal Overlay -->
+<div id="avatarModal" class="modal-overlay" style="display:none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Choose an avatar</h3>
+            <button onclick="closeModal()" class="close-x">&times;</button>
+        </div>
+
+        <div class="modal-body">
+            <p class="section-label">UPLOAD YOUR OWN</p>
+            <div class="upload-grid">
+                <div class="upload-box" onclick="document.getElementById('avatarInput').click()">
+                    <i class="fa-solid fa-upload"></i>
+                    <span>Avatar image</span>
+                    <input type="file" id="avatarInput" hidden onchange="handleFileUpload(this, 'avatar')">
+                </div>
+                <div class="upload-box" onclick="document.getElementById('bgInput').click()">
+                    <i class="fa-regular fa-image"></i>
+                    <span>Background image</span>
+                    <input type="file" id="bgInput" hidden onchange="handleFileUpload(this, 'bg')">
+                </div>
+            </div>
+
+            <p class="section-label">OR PICK A CHARACTER</p>
+            <div class="character-grid" id="charGrid">
+                <div class="char-item active" onclick="selectChar(this, 'none')">
+                    <div class="char-circle"><i class="fa-solid fa-ban"></i></div>
+                    <span>None</span>
+                </div>
+                <!-- Predefined characters -->
+                <div class="char-item" onclick="selectChar(this, 'https://i.postimg.cc/TYwbPSh8/file-0000000094a082079d65b1aa08615bd5.png')">
+                    <img src="https://i.postimg.cc/TYwbPSh8/file-0000000094a082079d65b1aa08615bd5.png">
+                </div>
+                <div class="char-item" onclick="selectChar(this, 'https://i.postimg.cc/Yq9FSV0Z/file-00000000989482079d0d325365308169.png')">
+                    <img src="https://i.postimg.cc/Yq9FSV0Z/file-00000000989482079d0d325365308169.png">
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+            <button class="btn-save" id="saveAvatarBtn" onclick="saveImages()">Save</button>
+        </div>
+    </div>
+</div>
+</body>
+</html>

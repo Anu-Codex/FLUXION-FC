@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Profile | PES PARK</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        :root { --bg: #030712; --card: #0f172a; --border: #1e293b; --accent: #10b981; --gold: #f59e0b; }
+        body { background: var(--bg); color: white; font-family: sans-serif; padding: 15px; margin: 0; }
+        .container { max-width: 500px; margin: auto; }
+        
+        /* Header Style */
+        .team-header { background: var(--card); border-radius: 20px; padding: 20px; border: 1px solid var(--border); display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+        .team-logo-lg { width: 50px; height: 50px; object-fit: contain; }
+        .team-name-lg { font-size: 1.4rem; font-weight: 900; font-style: italic; text-transform: uppercase; }
+
+        /* Player Row Style (Matching your image) */
+        .player-item {
+            background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+            border-radius: 18px; padding: 12px 15px; margin-bottom: 10px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .p-main { display: flex; align-items: center; gap: 12px; }
+        .p-img { width: 45px; height: 35px; border-radius: 6px; object-fit: cover; background: #1e293b; }
+        .p-name { font-weight: bold; font-size: 0.9rem; }
+        .p-tier { font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; opacity: 0.6; }
+        
+        .p-val-area { text-align: right; }
+        .p-val { color: #00e5ff; font-weight: 800; font-size: 1rem; }
+        .p-bdr { color: var(--gold); font-size: 0.7rem; font-weight: bold; }
+
+        .section-title { font-size: 0.8rem; color: #64748b; text-transform: uppercase; margin: 20px 0 10px 5px; letter-spacing: 1px; }
+        .badge { padding: 4px 8px; border-radius: 6px; font-size: 0.6rem; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" style="color:#64748b; text-decoration:none; font-size:0.9rem;"><i class="fa-solid fa-chevron-left"></i> Back</a>
+
+        <div id="content" style="display: none;">
+            <div class="team-header">
+                <img id="tLogo" src="" class="team-logo-lg">
+                <h1 id="tName" class="team-name-lg">TEAM NAME</h1>
+            </div>
+
+            <div class="section-title">Last 5 Performance</div>
+            <div id="recentForm" style="display: flex; gap: 8px; margin-bottom: 20px;"></div>
+
+            <div class="section-title">Squad List</div>
+            <div id="playerList"></div>
+
+            <div class="section-title">Team Achievements</div>
+            <div id="trophyList" class="player-item" style="display:block;"></div>
+        </div>
+        
+        <div id="loading" style="text-align:center; padding:100px; color:#64748b;"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading...</div>
+    </div>
+
+    <script>
+        const API = "https://pes-park-backend.onrender.com";
+// Get the ID and decode it (converts %20 back to spaces)
+const teamParam = new URLSearchParams(window.location.search).get('id');
+const teamName = decodeURIComponent(teamParam);
+
+async function loadTeam() {
+    try {
+        const res = await fetch(`${API}/api/teams/profile/${encodeURIComponent(teamName)}`);
+        
+        if (!res.ok) throw new Error("Team not found");
+        
+        const data = await res.json();
+
+        // Check if team data exists to prevent crash
+        if (!data.team) {
+            document.getElementById('loading').innerHTML = "Team data not found in database.";
+            return;
+        }
+
+        // 1. Set Header
+        document.getElementById('tName').innerText = data.team.name;
+        document.getElementById('tLogo').src = data.team.logoUrl || data.team.logo || 'https://via.placeholder.com/50';
+
+        // 2. Render Recent Form (with safety check)
+        const matches = data.matches || [];
+        document.getElementById('recentForm').innerHTML = matches.length > 0 
+            ? matches.map(m => {
+                const isPlayerA = m.playerA === teamName;
+                const myScore = isPlayerA ? m.scoreA : m.scoreB;
+                const oppScore = isPlayerA ? m.scoreB : m.scoreA;
+                
+                const win = myScore > oppScore;
+                const draw = myScore === oppScore;
+                
+                return `<span class="badge" style="background:${win ? '#10b981' : (draw ? '#f59e0b' : '#ef4444')}; color:black;">${win ? 'W' : (draw ? 'D' : 'L')}</span>`;
+            }).join('')
+            : '<span style="color:#64748b; font-size:0.8rem;">No recent matches</span>';
+
+        // 3. Render Players (with safety check)
+        const players = data.players || [];
+        document.getElementById('playerList').innerHTML = players.length > 0
+            ? players.map(p => `
+                <div class="player-item" onclick="window.location.href='player.html?id=${p._id}'" style="cursor:pointer">
+                    <div class="p-main">
+                        <img src="${p.image || 'https://via.placeholder.com/45'}" class="p-img" onerror="this.src='https://via.placeholder.com/45'">
+                        <div>
+                            <div class="p-name">${p.name}</div>
+                            <div class="p-tier">${p.nickname || 'Squad Member'}</div>
+                        </div>
+                    </div>
+                    <div class="p-val-area">
+                        <div class="p-val">${p.marketValue || 0}M</div>
+                        <div class="p-bdr" style="color:#f59e0b">★ ${p.bdrPoints || 0}</div>
+                    </div>
+                </div>
+            `).join('')
+            : '<div class="player-item">No players assigned to this team.</div>';
+
+        // 4. Render Trophies (with safety check)
+        const trophies = data.trophies || [];
+        document.getElementById('trophyList').innerHTML = trophies.length > 0
+            ? trophies.map(t => `
+                <div style="margin-bottom:8px; font-size:0.85rem; display:flex; align-items:center; gap:10px;">
+                    <span style="font-size:1.2rem;">🏆</span> 
+                    <div>
+                        <div style="font-weight:bold;">${t.title}</div>
+                        <div style="color:#f59e0b; font-size:0.7rem;">${t.season}</div>
+                    </div>
+                </div>
+            `).join('')
+            : '<div style="color:#64748b; font-size:0.8rem; padding:10px;">No trophies in the cabinet yet.</div>';
+
+        // Show content
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('content').style.display = 'block';
+
+    } catch (err) {
+        console.error("Load Error:", err);
+        document.getElementById('loading').innerHTML = `<span style="color:#ef4444">Error loading team. Make sure the team name is correct.</span>`;
+    }
+}
+
+// Initialize
+if (teamParam) {
+    loadTeam();
+} else {
+    document.getElementById('loading').innerHTML = "No team selected.";
+}
+    </script>
+</body>
+</html>
