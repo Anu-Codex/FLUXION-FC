@@ -1020,8 +1020,8 @@
     <i class="fa-solid fa-code-compare"></i> Players Compare
         </li>
         <hr style="border: 0; border-top: 1px solid var(--border); margin: 10px 0;">
-        <li onclick="switchView('auction')"><i class="fa-solid fa-gavel"></i> Auction Tour</li>
-    <li onclick="switchView('soloTour')"><i class="fa-solid fa-user"></i> Solo Tour</li>
+        <li onclick="switchView('soloTour')"><i class="fa-solid fa-user"></i> Solo Challenge</li>
+<li onclick="switchView('auction')"><i class="fa-solid fa-gavel"></i> Auction Tournament</li>
         <hr style="border: 0; border-top: 1px solid var(--border); margin: 10px 0;">
         <li onclick="switchView('bdr')"><i class="fa-solid fa-trophy"></i> BDR Rankings</li>
         <li onclick="switchView('market')"><i class="fa-solid fa-chart-line"></i> Market Value</li>
@@ -1453,85 +1453,92 @@ async function switchTourTab(type) {
     const content = document.getElementById('tourContent');
 
     if (!tourId || tourId === "" || tourId === "undefined") {
-        content.innerHTML = '<p style="text-align:center; padding:20px; color:var(--text-dim);">Please select a Tournament Name first.</p>';
+        content.innerHTML = '<p style="text-align:center; padding:20px; color:var(--text-dim);">Please select a tournament from the list above.</p>';
         return;
     }
 
     content.innerHTML = '<p style="text-align:center; padding:30px;"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading Data...</p>';
 
     try {
-        // --- 1. POINTS TABLE ---
         if (category === 'table') {
-    const res = await fetch(`${API}/api/smart/standings/${tourId}`);
-    let data = await res.json();
+            const res = await fetch(`${API}/api/smart/standings/${tourId}`);
+            let data = await res.json();
 
-    // SORTING: Points > GD > GF
-    data.sort((a, b) => {
-        const gdA = (a.gf || 0) - (a.ga || 0);
-        const gdB = (b.gf || 0) - (b.ga || 0);
-        return (b.points - a.points) || (gdB - gdA) || (b.gf - a.gf);
-    });
-
-    content.innerHTML = `
-    <div class="table-responsive">
-        <table class="pts-table">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th style="text-align:left; padding-left:10px;">TEAM</th>
-                    <th>P</th><th>W</th><th>D</th><th>L</th>
-                    <th>GF</th><th>GA</th><th>GD</th>
-                    <th>PTS</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${data.map((s, i) => {
-                    const gd = (s.gf || 0) - (s.ga || 0);
-                    const gdClass = gd > 0 ? 'gd-positive' : (gd < 0 ? 'gd-negative' : '');
-                    return `
-                    <tr class="${i === 0 ? 'row-leader' : ''}">
-                        <td style="color:var(--accent); font-weight:bold;">${i + 1}</td>
-                        <td class="col-team-name">${s.participant}</td>
-                        <td>${s.played}</td>
-                        <td>${s.wins}</td>
-                        <td>${s.draws}</td>
-                        <td>${s.losses}</td>
-                        <td>${s.gf || 0}</td>
-                        <td>${s.ga || 0}</td>
-                        <td style="font-weight:bold; color:${gd > 0 ? '#10b981' : (gd < 0 ? '#ef4444' : '#94a3b8')}">
-                            ${gd > 0 ? '+' + gd : gd}
-                        </td>
-                        <td class="col-pts-bold">${s.points}</td>
-                    </tr>`;
-                }).join('')}
-            </tbody>
-        </table>
-    </div>`;
-        }
-        // --- 2. FIXTURES ---
-        else if (category === 'fixtures') {
-            const res = await fetch(`${API}/api/smart/fixtures/${tourId}`);
-            const matches = await res.json();
-
-            if (!matches || matches.length === 0) {
-                content.innerHTML = '<p style="text-align:center; padding:30px; color:var(--text-dim);">No fixtures found.</p>';
+            // 2. Data Check: If no data returned
+            if (!data || data.length === 0) {
+                content.innerHTML = '<p style="text-align:center; padding:20px; color:var(--text-dim);">Point table not initialized for this tour.</p>';
                 return;
             }
+                // Sorting: Points > GD > GF
+            data.sort((a, b) => {
+                const gdA = (a.gf || 0) - (a.ga || 0);
+                const gdB = (b.gf || 0) - (b.ga || 0);
+                return (b.points - a.points) || (gdB - gdA) || (b.gf - a.gf);
+            });
 
+            const participantLabel = (type === 'auction') ? "OFFICIAL CLUB" : "PLAYER NAME";
+
+            content.innerHTML = `
+            <div class="table-responsive">
+                <table class="pts-table">
+                    <thead>
+                        <tr>
+                        <th>#</th>
+                            <th style="text-align:left; padding-left:10px;">${participantLabel}</th>
+                            <th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>PTS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.map((s, i) => {
+                            const gd = (s.gf || 0) - (s.ga || 0);
+                            const gdColor = gd > 0 ? '#10b981' : (gd < 0 ? '#ef4444' : '#94a3b8');
+                            return `
+                        <tr class="${i === 0 ? 'row-leader' : ''}">
+                            <td style="color:var(--accent); font-weight:bold;">${i + 1}</td>
+                            <td class="col-team-name">${s.participant}</td>
+                            <td>${s.played || 0}</td>
+                            <td>${s.wins || 0}</td>
+                            <td>${s.draws || 0}</td>
+                            <td>${s.losses || 0}</td>
+                            <td style="color:var(--text-dim)">${s.gf || 0}</td>
+                            <td style="color:var(--text-dim)">${s.ga || 0}</td>
+                            <td style="font-weight:bold; color:${gdColor}">
+    ${gd > 0 ? '+' + gd : gd}
+</td>
+                            <td class="col-pts-bold">${s.points || 0}</td>
+                        </tr>`;}).join('')}
+                    </tbody>
+                </table>
+            </div>`;
+        // --- 2. FIXTURES ---
+        } else if (category === 'fixtures') {
+            const res = await fetch(`${API}/api/smart/fixtures/${tourId}`);
+            const matches = await res.json();
             content.innerHTML = matches.map(m => `
-                <div class="match-card" style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.02); padding:15px; border-radius:15px; margin-bottom:10px; border:1px solid var(--border);">
-                    <div style="flex:1; font-weight:600; font-size:0.9rem;">${m.playerA}</div>
+                <div class="match-card">
+                    <div style="flex:1; font-weight:600;">${m.playerA}</div>
                     <div style="text-align:center; min-width:80px;">
                         <b style="background:var(--bg); padding:5px 10px; border-radius:8px; color:var(--accent);">
                             ${m.status === 'Completed' ? `${m.scoreA}-${m.scoreB}` : 'VS'}
                         </b>
-                    </div>
-                    <div style="flex:1; text-align:right; font-weight:600; font-size:0.9rem;">${m.playerB}</div>
-                </div>
-            `).join('');
+                        </div>
+                    <div style="flex:1; text-align:right; font-weight:600;">${m.playerB}</div>
+                </div>`).join('') || '<p style="text-align:center">No matches scheduled.</p>';
         }
+     
         // --- 3. GOLDEN BOOT ---
         else if (category === 'boot') {
+            if (type === 'auction') {
+                content.innerHTML = `
+                    <div style="text-align:center; padding:60px 20px;">
+                        <i class="fa-solid fa-user-slash" style="font-size:2.5rem; color:var(--danger); opacity:0.3; margin-bottom:15px; display:block;"></i>
+                        <p style="color:var(--text-dim); font-size:0.85rem; font-weight:bold; letter-spacing:1px; line-height:1.5;">
+                            INDIVIDUAL GOLDEN BOOT <br> 
+                            NOT TRACKED FOR CLUB LEAGUES.
+                        </p>
+                    </div>`;
+                return;
+            }
     // Fetches goals for specific tour type (passed as 'type' to the function)
     const res = await fetch(`${API}/api/tour-ranks/${type}/boot`);
     const data = await res.json();
@@ -1602,10 +1609,10 @@ async function switchTourTab(type) {
             }
         }
     } catch (e) {
-        console.error("Fetch Error:", e);
-        content.innerHTML = '<p style="text-align:center; color:red; padding:20px;">Database Error.</p>';
+        console.error(e);
+        content.innerHTML = '<p style="text-align:center; color:red; padding:20px;">CRITICAL: DATABASE LINK FAILED</p>';
     }
-        }
+}
         function renderSoloTour(container) {
     container.innerHTML = `
         <div class="solo-tour-card">
