@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Captain Login | NEXUS LEGENDS</title>
+    <title>Captain Login | FLUXION FC</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         :root {
@@ -136,7 +136,7 @@
         <form id="captainLoginForm">
             <div class="input-group">
                 <label>Email Address</label>
-                <input type="email" id="email" placeholder="name@nexus.com" required>
+                <input type="email" id="email" placeholder="name@fluxion.com" required>
             </div>
 
             <div class="input-group">
@@ -168,7 +168,7 @@
 async function loadTeams() {
     const select = document.getElementById('teamSelect');
     // MAKE SURE THIS URL IS EXACTLY YOUR RENDER URL
-    const API_URL = "https://pes-park-backend.onrender.com"; 
+    const API_URL = "https://fluxion-fc-backend-5sq5.onrender.com"; 
 
     try {
         const res = await fetch(`${API_URL}/api/teams/all`);
