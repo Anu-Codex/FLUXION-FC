@@ -140,34 +140,6 @@
 
         <!-- 4. SMART CENTER (Tournament Logic) -->
         <div id="sec-smart" class="admin-section">
-            <div class="sub-box">
-                <h4>1. Create Tournament</h4>
-                <div class="grid-2">
-                    <select id="stType">
-                        <option value="auction">Auction Tour</option>
-                        <option value="solo">Solo Challenge</option>
-                    </select>
-                    <input type="text" id="stName" placeholder="Tour Name">
-                </div>
-                <div id="stParticipantList" class="list-container"></div>
-                <button onclick="createSmartTour()" class="btn-green">Create & Start Tour</button>
-            </div>
-
-            <div class="sub-box">
-                <h4>2. Add Match</h4>
-                <select id="sfTourSelect" onchange="loadTourParticipants()"><option>Loading...</option></select>
-                <div class="grid-2">
-                    <select id="sfPlayerA"></select>
-                    <select id="sfPlayerB"></select>
-                </div>
-                <button onclick="createSmartFixture()" class="btn-gold">Generate Fixture</button>
-            </div>
-
-            <div class="sub-box">
-                <h4>3. Record Result</h4>
-                <select id="srTourSelect" onchange="loadTourFixtures()"><option>Choose Tour...</option></select>
-                <div id="srFixtureList"></div>
-            </div>
             <!-- Update 1. Create Tournament box -->
 <div class="sub-box">
     <h4>1. Create Tournament</h4>
@@ -190,6 +162,22 @@
     </div>
     <button onclick="createSmartTour()" class="btn-green">Create & Start Tour</button>
 </div>
+
+            <div class="sub-box">
+                <h4>2. Add Match</h4>
+                <select id="sfTourSelect" onchange="loadTourParticipants()"><option>Loading...</option></select>
+                <div class="grid-2">
+                    <select id="sfPlayerA"></select>
+                    <select id="sfPlayerB"></select>
+                </div>
+                <button onclick="createSmartFixture()" class="btn-gold">Generate Fixture</button>
+            </div>
+
+            <div class="sub-box">
+                <h4>3. Record Result</h4>
+                <select id="srTourSelect" onchange="loadTourFixtures()"><option>Choose Tour...</option></select>
+                <div id="srFixtureList"></div>
+            </div>
         </div>
 
         <!-- 5. PRESTIGE (SMART HOF) -->
