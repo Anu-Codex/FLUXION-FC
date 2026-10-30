@@ -295,6 +295,7 @@
                 <div class="row-item"><span>${p.name}</span><button class="delete-btn" onclick="deletePlayer('${p._id}')">X</button></div>
             `).join('');
 
+
             document.getElementById('teamMemberList').innerHTML = players.map(p => `
                 <div style="display:flex; gap:10px; padding:5px"><input type="checkbox" class="nt-member-cb" value="${p.name}"> <label>${p.name}</label></div>
             `).join('');
@@ -657,6 +658,31 @@ async function refreshParticipantList() {
         container.innerHTML = '<p style="color:red">Failed to load data.</p>';
     }
 }
+        async function deletePlayer(playerId) {
+    if (!playerId) return alert("Invalid Player ID");
+
+    const check = confirm("⚠️ DANGER: Permanently delete this player and all their records from the database?");
+    if (!check) return;
+
+    try {
+        const res = await fetch(`${API}/api/players/${playerId}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            alert("✅ Player deleted successfully!");
+            location.reload(); // Refresh list
+        } else {
+            alert("❌ Error: " + (data.error || "Failed to delete player"));
+        }
+    } catch (err) {
+        console.error("Delete Error:", err);
+        alert("❌ Server connection error while deleting player.");
+    }
+        }
 
 // Add this to your stType dropdown in HTML
 // <select id="stType" onchange="refreshParticipantList()"> ... </select>
