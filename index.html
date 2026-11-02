@@ -1226,33 +1226,7 @@ window.addEventListener('DOMContentLoaded', initPage);
         renderTotalPlayers(container);
     }
     }
-    function renderTotalPlayers(container) {
-    container.innerHTML = allPlayers.map(p => `
-        <div class="player-row" style="cursor: default;">
-            <!-- 1. LEFT SIDE: CLICKABLE PLAYER INFO -->
-            <div class="p-details" onclick="window.location.href='player.html?id=${p._id}'" style="cursor:pointer; flex: 1;">
-                <img src="${p.image || 'https://via.placeholder.com/40'}" class="p-img" onerror="this.src='https://via.placeholder.com/40'">
-                <div>
-                    <span class="p-name">${p.name}</span>
-                    ${p.nickname ? '<span class="p-nick">"' + p.nickname + '"</span>' : ''}
-                </div>
-            </div>
-
-            <!-- 2. RIGHT SIDE: CLICKABLE TEAM INFO -->
-            <div class="t-details" 
-                 onclick="${p.teamName ? "window.location.href='team.html?id=" + encodeURIComponent(p.teamName) + "'" : ""}" 
-                 style="cursor:${p.teamName ? 'pointer' : 'default'}; display: flex; align-items: center; gap: 8px; justify-content: flex-end; min-width: 120px;">
-                
-                ${p.teamName ? `
-                    <img src="${p.teamLogo}" class="t-logo" onerror="this.style.display='none'">
-                    <span class="t-name" style="font-size: 0.65rem; color: var(--text-dim); font-weight: 800; text-transform: uppercase;">${p.teamName}</span>
-                ` : '<span style="color:rgba(255,255,255,0.1);">—</span>'}
-                
-                <i class="fa-solid fa-chevron-right" style="font-size: 8px; color: rgba(255,255,255,0.2); margin-left: 5px;"></i>
-            </div>
-        </div>
-    `).join('');
-    }
+    
 
     function renderBDRRankings(container) {
         const sorted = [...allPlayers].sort((a, b) => (b.bdrPoints || 0) - (a.bdrPoints || 0));
@@ -1805,7 +1779,45 @@ function renderWeekendSeries(container) {
     createTourUI(container, 'weekend', '#3b82f6'); // Blue Theme
 }
 
-        async function renderTotalTeams(container) {
+        function renderTotalPlayers(container) {
+    if (!allPlayers || allPlayers.length === 0) {
+        container.innerHTML = '<p style="text-align:center; padding:20px; color:var(--text-dim);">No players registered yet.</p>';
+        return;
+    }
+
+    container.innerHTML = allPlayers.map(p => {
+        const playerPhoto = p.image || p.imageUrl || 'https://via.placeholder.com/40';
+        const hasTeam = p.teamName && p.teamName !== 'Free Agent' && p.teamName !== '-';
+
+        return `
+        <div class="player-row" style="cursor: default;">
+            <!-- LEFT: PLAYER INFO -->
+            <div class="p-details" onclick="window.location.href='player.html?id=${p._id}'" style="cursor:pointer; flex: 1;">
+                <img src="${playerPhoto}" class="p-img" onerror="this.src='https://via.placeholder.com/40'">
+                <div>
+                    <span class="p-name">${p.name}</span>
+                    ${p.nickname ? '<span class="p-nick">"' + p.nickname + '"</span>' : ''}
+                </div>
+            </div>
+
+            
+            <div class="t-details" 
+                 onclick="${hasTeam ? "window.location.href='team.html?id=" + encodeURIComponent(p.teamName) + "'" : ""}" 
+                 style="cursor:${hasTeam ? 'pointer' : 'default'}; display: flex; align-items: center; gap: 8px; justify-content: flex-end; min-width: 120px;">
+                
+                ${hasTeam ? `
+                    ${p.teamLogo ? `<img src="${p.teamLogo}" class="t-logo" onerror="this.style.display='none'">` : ''}
+                    <span class="t-name" style="font-size: 0.65rem; color: var(--text-dim); font-weight: 800; text-transform: uppercase;">${p.teamName}</span>
+                ` : '<span style="color:rgba(255,255,255,0.3); font-size:0.75rem;">Free Agent</span>'}
+                
+                <i class="fa-solid fa-chevron-right" style="font-size: 8px; color: rgba(255,255,255,0.2); margin-left: 5px;"></i>
+            </div>
+        </div>
+        `;
+    }).join('');
+}
+
+async function renderTotalTeams(container) {
     container.innerHTML = '<p style="text-align:center; padding:20px;"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading Teams...</p>';
     try {
         const res = await fetch(`${API}/api/teams/all`);
@@ -1815,24 +1827,28 @@ function renderWeekendSeries(container) {
             container.innerHTML = '<p style="text-align:center; color:var(--text-dim); padding:20px;">No teams registered yet.</p>';
             return;
         }
-        container.innerHTML = teams.map(t => `
+
+        container.innerHTML = teams.map(t => {
+            const teamLogo = t.logo || t.logoUrl || 'https://via.placeholder.com/40';
+            return `
             <div class="player-row" onclick="window.location.href='team.html?id=${encodeURIComponent(t.name)}'" style="cursor:pointer;">
                 <div class="p-details">
-                    <img src="${t.logo || 'https://via.placeholder.com/40'}" class="p-img" style="object-fit: contain; background: transparent;" onerror="this.src='https://via.placeholder.com/40'">
+                    <img src="${teamLogo}" class="p-img" style="object-fit: contain; background: transparent;" onerror="this.src='https://via.placeholder.com/40'">
                     <div>
                         <span class="p-name">${t.name}</span>
-                        <span class="p-nick" style="color:var(--accent)">Official Club</span>
+                        <span class="p-nick" style="color:var(--accent)">Official Club • Budget: ${t.budget ?? 0}M</span>
                     </div>
                 </div>
                 <div class="t-details">
                     <i class="fa-solid fa-chevron-right" style="font-size: 12px; color: var(--border);"></i>
                 </div>
             </div>
-        `).join('');
+            `;
+        }).join('');
     } catch (err) {
         container.innerHTML = '<p style="text-align:center; color:red;">Error loading teams.</p>';
     }
-        }
+}
         async function renderUptimeStats(container) {
     container.innerHTML = `
         <div class="stats-header">
