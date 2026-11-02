@@ -90,134 +90,7 @@
     <button onclick="postAnnouncement()" class="btn-green" style="margin-top:10px;">Send Notification</button>
 </div>
             
-    <!-- Part 1: Create Tour -->
-    <div class="sub-box" style="border-left: 4px solid #00d1ff;">
-        <h4><i class="fa-solid fa-users-rectangle"></i> Create Duo Tournament</h4>
-        <input type="text" id="dtName" placeholder="Tournament Name (e.g. S1 Duo Masters)">
-        <button onclick="createDuoTour()" class="btn-green" style="background:#00d1ff; color:#000;">Initialize Duo Tour</button>
-    </div>
-
-    <!-- 2. DUO FIXTURE ENTRY -->
-<div class="sub-box" style="border-left: 4px solid #00d1ff;">
-    <h4><i class="fa-solid fa-users-viewfinder"></i> DUO FIXTURE ENTRY</h4>
-    
-    <!-- ADD THIS DROPDOWN HERE -->
-    <select id="dtTourSelect" style="border-color: #00d1ff; color: #00d1ff; margin-bottom: 15px;">
-        <option value="">Select Duo Tournament...</option>
-    </select>
-    
-    <div class="grid-2">
-        <select id="dtGroup">
-            <option value="Group A">Group A</option>
-            <option value="Group B">Group B</option>
-            <option value="Group C">Group C</option>
-            <option value="Group D">Group D</option>
-            <option value="Group E">Group E</option>
-            <option value="Group F">Group F</option>
-        </select>
-        <input type="text" id="dtStage" placeholder="Stage (e.g. Round 1)">
-    </div>
-
-    <div class="grid-2" style="margin-top:10px;">
-        <input type="text" id="dtPlayerA" placeholder="Team 1">
-        <input type="text" id="dtPlayerB" placeholder="Team 2">
-    </div>
-    
-    <button onclick="createDuoFixture()" class="btn-gold" style="background:#00d1ff; color:#000; margin-top: 15px;">
-        ADD DUO MATCH
-    </button>
-</div>
-            <!-- 3. DUO RESULT CENTRE & DELETE -->
-<div class="sub-box" style="border-left: 4px solid #ef4444;">
-    <h4><i class="fa-solid fa-trophy"></i> Duo Result Centre</h4>
-    <select id="dmTourSelect" onchange="loadDuoManagementFixtures()">
-        <option value="">Select Duo Tour to Manage...</option>
-    </select>
-    
-    <div id="duoManagementList" class="list-container" style="margin-top:15px; border-color:#334155;">
-        <p style="text-align:center; color:var(--text-dim); padding:10px;">Select a tour to view/edit matches.</p>
-    </div>
-    <!-- Inside the Duo Result Centre sub-box -->
-<div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
-    <p style="font-size:0.65rem; color:var(--text-dim); margin-bottom:10px;">
-        Use this if you deleted a match or made a scoring mistake to fix the table.
-    </p>
-    <button onclick="recalculateDuoTable()" class="btn-gold" style="background:#f59e0b; color:black;">
-        <i class="fa-solid fa-arrows-rotate"></i> SYNC DUO POINTS TABLE
-    </button>
-</div>
-</div>
-            <!-- 4. MANUAL GROUP OVERRIDE TOOL -->
-<div class="sub-box" style="border-left: 4px solid #a855f7; background: rgba(168, 85, 247, 0.05);">
-    <h4 style="color:#a855f7;"><i class="fa-solid fa-wand-magic-sparkles"></i> Manual Group Fixer</h4>
-    <p style="font-size:0.65rem; color:var(--text-dim); margin-bottom:15px;">
-        Force a team into a specific group. This updates their table position and all their existing fixtures.
-    </p>
-    
-    <select id="mgTourSelect">
-        <option value="">Select Tournament...</option>
-    </select>
-
-    <div class="grid-2">
-        <input type="text" id="mgTeamName" placeholder="Enter Team Name Exactly">
-        <select id="mgGroup">
-            <option value="Group A">Move to Group A</option>
-            <option value="Group B">Move to Group B</option>
-            <option value="Group C">Move to Group C</option>
-            <option value="Group D">Move to Group D</option>
-            <option value="Group E">Move to Group E</option>
-            <option value="Group F">Move to Group F</option>
-        </select>
-    </div>
-    
-    <button onclick="manualGroupFix()" class="btn-gold" style="background:#a855f7; color:white; margin-top:10px;">
-        EXECUTE GROUP MOVE
-    </button>
-</div>
-            <!-- 5. DELETE DUO TOURNAMENT -->
-<div class="sub-box" style="border: 2px solid var(--danger); background: rgba(239, 68, 68, 0.05); margin-top: 30px;">
-    <h4 style="color: var(--danger);"><i class="fa-solid fa-trash-can"></i> Delete Tournament</h4>
-    <p style="font-size: 0.65rem; color: var(--text-dim); margin-bottom: 15px;">
-        Warning: This will permanently delete the tournament, all its fixtures, and the points table. This cannot be undone.
-    </p>
-    
-    <select id="deleteTourSelect" style="border-color: var(--danger); color: white;">
-        <option value="">Select Tour to Delete...</option>
-    </select>
-    
-    <button onclick="deleteFullDuoTour()" class="delete-btn" style="width: 100%; padding: 12px; margin-top: 10px; font-weight: 900;">
-        CONFIRM PERMANENT DELETE
-    </button>
-</div>
-            <!-- 1. NEURAL STAT INJECTOR -->
-<div class="sub-box" style="border-left: 4px solid #10b981;">
-    <h4><i class="fa-solid fa-file-import"></i> 1. Neural Stat Injector</h4>
-    <p style="font-size:0.65rem; color:var(--text-dim); margin-bottom:10px;">
-        Calculates points from fixtures into the table. <b>Groups will not change.</b>
-    </p>
-    <select id="siTourSelect"><option value="">Select Tour...</option></select>
-    <button onclick="injectDuoStats()" class="btn-green">INJECT MATCH DATA</button>
-</div>
-
-<!-- 2. INTERNAL FIXTURE ENGINE (Auto-Group) -->
-<div class="sub-box" style="border-left: 4px solid #00d1ff;">
-    <h4><i class="fa-solid fa-robot"></i> 2. Internal Match Engine</h4>
-    <p style="font-size:0.65rem; color:var(--text-dim); margin-bottom:10px;">
-        Generate matches between teams already assigned to groups.
-    </p>
-    <select id="ieTourSelect" onchange="loadInternalDuoTeams(this.value)">
-        <option value="">Select Tour...</option>
-    </select>
-    <input type="text" id="ieStage" placeholder="Stage (e.g. Round 2)">
-    
-    <div class="grid-2">
-        <select id="ieTeamA"><option>Select Team 1...</option></select>
-        <select id="ieTeamB"><option>Select Team 2...</option></select>
-    </div>
-    <button onclick="createInternalFixture()" class="btn-gold" style="background:#00d1ff; color:black; margin-top:10px;">
-        GENERATE INTERNAL MATCH
-    </button>
-</div>
+        
         </div>
 
         <!-- 2. PLAYERS (Add/Edit/Delete) -->
@@ -939,92 +812,74 @@
     }
 
     async function loadAllDashboardData() {
+        console.log("🔄 Loading dashboard data...");
         try {
-            const [pRes, tRes, teamRes] = await Promise.all([
-                fetch(`${API}/api/players`),
-                fetch(`${API}/api/smart/tournaments`),
-                fetch(`${API}/api/teams/all`),
+            // Only fetch what you actually use
+            const [players, tours, teams] = await Promise.all([
+                fetch(`${API}/api/players`).then(r => r.ok ? r.json() : []).catch(() => []),
+                fetch(`${API}/api/smart/tournaments`).then(r => r.ok ? r.json() : []).catch(() => []),
+                fetch(`${API}/api/teams/all`).then(r => r.ok ? r.json() : []).catch(() => [])
             ]);
 
-            const players = await pRes.json();
-            const tours = await tRes.json();
-            const teams = await teamRes.json();
-            const duoRes = await fetch(`${API_V2}/api/duo/tournaments`);
-            const duoTours = await duoRes.json();
+            const setHTML = (id, html) => {
+                const el = document.getElementById(id);
+                if (el) el.innerHTML = html;
+            };
 
-            // Populate Player Selectors
-            const pOpts = players.map(p => `<option value="${p._id}">${p.name}</option>`).join('');
-            document.getElementById('playerSelector').innerHTML = '<option value="">Choose Player...</option>' + pOpts;
-            
-            // Populate List Containers
-            document.getElementById('adminPlayerList').innerHTML = players.map(p => `
-                <div class="row-item"><span>${p.name}</span><button class="delete-btn" onclick="deletePlayer('${p._id}')">X</button></div>
-            `).join('');
+            // 1. POPULATE PLAYERS (Selectors, Checkboxes, Lists)
+            if (Array.isArray(players) && players.length > 0) {
+                const pOpts = players.map(p => 
+                    `<option value="${p._id}">${p.name} (${p.teamName || 'Free Agent'})</option>`
+                ).join('');
 
-            document.getElementById('teamMemberList').innerHTML = players.map(p => `
-                <div style="display:flex; gap:10px; padding:5px"><input type="checkbox" class="nt-member-cb" value="${p.name}"> <label>${p.name}</label></div>
-            `).join('');
+                setHTML('playerSelector', '<option value="">Choose Player...</option>' + pOpts);
+                setHTML('repNewPlayerSelect', '<option value="">Choose Player...</option>' + pOpts);
+                setHTML('trPlayerSelect', '<option value="">Select Player...</option>' + pOpts);
+                setHTML('capPlayerSelect', '<option value="">Select Member...</option>' + pOpts);
 
-            document.getElementById('stParticipantList').innerHTML = players.map(p => `
-                <div style="display:flex; gap:10px; padding:5px"><input type="checkbox" class="st-cb" value="${p.name}"> <label>${p.name}</label></div>
-            `).join('');
-            document.getElementById('capPlayerSelect').innerHTML = players.map(p => `
-                <div style="display:flex; gap:10px; padding:5px"><input type="checkbox" class="st-cb" value="${p.name}"> <label>${p.name}</label></div>
-            `).join('');
-            document.getElementById('trPlayerSelect').innerHTML = '<option value="">Select Player...</option>' + 
-    players.map(p => `<option value="${p._id}">${p.name}</option>`).join('');
-            document.getElementById('repNewPlayerSelect').innerHTML = '<option value="">Choose Player...</option>' + pOpts;
+                setHTML('adminPlayerList', players.map(p => `
+                    <div class="row-item"><span>${p.name}</span><button class="delete-btn" onclick="deletePlayer('${p._id}')">X</button></div>
+                `).join(''));
 
-            const teamOpts = teams.map(t => `<option value="${t.name}">${t.name}</option>`).join('');
-        
-        const teamSelectors = ['capTeamSelect', 'pTeamSelect', 'relTeamSelect', 'faTargetTeamSelect'];
-        teamSelectors.forEach(id => {
-            const el = document.getElementById(id);
-            if(el) el.innerHTML = '<option value="">Select Club...</option>' + teamOpts;
-        });
+                setHTML('teamMemberList', players.map(p => `
+                    <div style="display:flex; gap:10px; padding:5px"><input type="checkbox" class="nt-member-cb" value="${p.name}"> <label>${p.name}</label></div>
+                `).join(''));
 
-            // Populate Tour Selectors
-            const tourOpts = tours.map(t => `<option value="${t._id}">${t.name}</option>`).join('');
-            document.getElementById('sfTourSelect').innerHTML = '<option>Select Tour...</option>' + tourOpts;
-            document.getElementById('srTourSelect').innerHTML = '<option>Select Tour...</option>' + tourOpts;
-            document.getElementById('deleteTourSelect').innerHTML = '<option value="">Select Tour to Delete...</option>' + tourOpts;
-            document.getElementById('subTourSelect').innerHTML = '<option>Select Tour...</option>' + tourOpts;
-            document.getElementById('rebuildTourSelect').innerHTML = '<option>Select Tour...</option>' + tourOpts;
-            document.getElementById('repTourSelect').innerHTML = '<option>Select Tour...</option>' + tourOpts;
-            
-            const duoOpts = duoTours.map(t => `<option value="${t._id}">${t.name} (DUO)</option>`).join('');
-            document.getElementById('dmTourSelect').innerHTML = '<option value="">Select Duo Tour...</option>' + duoOpts;
-            document.getElementById('mgTourSelect').innerHTML = '<option value="">Select Duo Tour...</option>' + duoOpts;
-            document.getElementById('siTourSelect').innerHTML = '<option value="">Select Duo Tour...</option>' + duoOpts;
-            document.getElementById('ieTourSelect').innerHTML = '<option value="">Select Duo Tour...</option>' + duoOpts;
-            document.getElementById('srTourSelect').innerHTML += duoOpts;
+                setHTML('stParticipantList', players.map(p => `
+                    <div style="display:flex; gap:10px; padding:5px"><input type="checkbox" class="st-cb" value="${p.name}"> <label>${p.name}</label></div>
+                `).join(''));
+            }
 
-            // Inside loadAllDashboardData():
-const uclSoloSel = document.getElementById('uclSoloTourSelect');
-        if (uclSoloSel) {
-            uclSoloSel.innerHTML = '<option value="">Select Tour to Add to Pool...</option>' + allTourOpts;
+            // 2. POPULATE CLUBS / TEAMS
+            if (Array.isArray(teams) && teams.length > 0) {
+                const teamOpts = teams.map(t => `<option value="${t.name}">${t.name}</option>`).join('');
+                ['capTeamSelect', 'pTeamSelect', 'relTeamSelect', 'faTargetTeamSelect'].forEach(id => {
+                    setHTML(id, '<option value="">Select Club...</option>' + teamOpts);
+                });
+            }
+
+            // 3. POPULATE TOURNAMENTS
+            let tourOpts = '<option value="">Select Tournament...</option>';
+            if (Array.isArray(tours) && tours.length > 0) {
+                tourOpts += tours.map(t => `<option value="${t._id}">${t.name}</option>`).join('');
+            }
+            [
+                'sfTourSelect', 'srTourSelect', 'deleteTourSelect', 
+                'subTourSelect', 'rebuildTourSelect', 'repTourSelect',
+                'uclSoloTourSelect', 'uclMainTourSelect', 'akTourSelect'
+            ].forEach(id => setHTML(id, tourOpts));
+
+            console.log("✅ Dashboard dropdowns loaded cleanly!");
+
+        } catch (e) { 
+            console.error("Dashboard Sync Error:", e); 
         }
 
-        const uclMainSel = document.getElementById('uclMainTourSelect');
-        if (uclMainSel) {
-            uclMainSel.innerHTML = '<option value="">Select Main UCL Tournament...</option>' + allTourOpts;
-        }
-
-        // Refresh connected qualification leagues badges
-        if (typeof loadUclAdminData === 'function') {
-            loadUclAdminData();
-        }
-            
-            
-
-        
-
-    } catch (e) { console.error("Sync Error", e); }
-        syncDuoDropdowns();
-        loadFreeAgentsDropdown();
-        loadCelebrationPlayers();
-        loadGloryAdminList();
-        loadGiveawayAdminList();
+        // Secondary loaders
+        if (typeof loadFreeAgentsDropdown === 'function') loadFreeAgentsDropdown().catch(() => {});
+        if (typeof loadCelebrationPlayers === 'function') loadCelebrationPlayers().catch(() => {});
+        if (typeof loadGloryAdminList === 'function') loadGloryAdminList().catch(() => {});
+        if (typeof loadGiveawayAdminList === 'function') loadGiveawayAdminList().catch(() => {});
     }
 
     // Load Player Data for Edit
