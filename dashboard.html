@@ -3198,6 +3198,32 @@ async function updateGiveawayStatus(id, newStatus) {
         btn.disabled = false;
     }
         }
+            async function triggerTeamSync() {
+    if (!confirm("This will synchronize all players, prices, and logos from the Auction Database. Proceed?")) return;
+
+    const btn = event.currentTarget;
+    const originalText = btn.innerHTML;
+    
+    btn.disabled = true;
+    btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> ACCESSING AUCTION DATABASE...`;
+
+    try {
+        const res = await fetch(`${API}/api/danger/import-team-data`);
+        const data = await res.json();
+
+        if (data.success) {
+            alert("✅ " + data.message);
+            location.reload();
+        } else {
+            alert("SYNC ERROR: " + (data.error || "Failed"));
+        }
+    } catch (e) {
+        alert("CRITICAL ERROR: Connection to Server interrupted.");
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    }
+}
 
 // Add to your loadAllDashboardData() in dashboard.html:
 
